@@ -21,6 +21,7 @@ tags_metadata = [
 ]
 
 app = FastAPI(openapi_tags=tags_metadata, title="MSR Validator", description=description)
+logging.basicConfig(level=logging.INFO)
 
 
 @app.post("/api/testServiceRegistry/", tags=["testServiceRegistry"])

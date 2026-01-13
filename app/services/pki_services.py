@@ -100,6 +100,7 @@ class PKIServices:
         """
         # Populate the envelope
         envelope.envelope_root_certificate_thumbprint = self.root_ca_fingerprint
+        logging.info("Root CA fingerprint: %s", self.root_ca_fingerprint)
         envelope.envelope_signature_certificate = []
         with open(self.public_key, "r") as f:
             envelope.envelope_signature_certificate.append(f.read().replace("\n", "")
@@ -111,7 +112,7 @@ class PKIServices:
 
         # Get the signature and the signature reference
         signature = self.get_data_signature(envelope.payload_to_bytes())
-
+        logging.info("Signature: %s", signature)
         return envelope, signature
 
     def verify_ecdsa_384_sha3_data_signature(self, data : bytes,
