@@ -2,12 +2,12 @@ import json
 from uuid import uuid4
 
 import requests
-import tempfile
+
 import logging
 import base64
 import os
 
-from tempfile import TemporaryDirectory
+
 
 from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
@@ -15,6 +15,7 @@ from openapi_core.validation.response.exceptions import InvalidData
 from requests import RequestException
 
 from app.model.secom.secom_constants import SecomConstants
+from app.model.secom.v2.secom_envelope import SecomEnvelope
 from app.model.secom.v2.secom_envelope_search_filter import SecomEnvelopeSearchFilter
 from app.model.secom.v2.secom_search_filter import SecomSearchFilter
 from app.model.secom.v2.secom_search_parameters import SecomSearchParameters
@@ -22,12 +23,11 @@ from app.model.secom.v2.secom_search_result import SecomSearchResult
 from app.model.test_data import TestData
 from app.model.test_result import TestResult
 from app.model.test_results import TestResults
+from app.services.pki_services import PKIServices
+
 
 class MsrOpenApiValidator:
 
-
-    cert : tuple[str, str]
-    root_cert : str
     headers : dict[str, str] = {
         "Content-Type": "application/json",
         "Accept": "application/json"
@@ -36,7 +36,8 @@ class MsrOpenApiValidator:
     open_api : OpenAPI
     url : str
 
-    __temp_folder__ : TemporaryDirectory
+    # Internal variables
+    _pki_services : PKIServices
 
     def __init__(self, test_data : TestData, api_path : str = "./app/schema/MSRv2.json"):
         self.open_api = OpenAPI.from_file_path(api_path)
@@ -44,22 +45,10 @@ class MsrOpenApiValidator:
         if self.url[-1] != "/":
             self.url = self.url + "/"
 
-        self.__tempfolder__ = tempfile.TemporaryDirectory(delete=False)
+        self._pki_services = PKIServices(public_cert=test_data.certificate,
+                                         private_cert=test_data.private_key,
+                                         root_cert=test_data.root_certificate)
 
-        with open(self.__tempfolder__.name + "/secom.crt", "wb") as f:
-            f.write(base64.b64decode(test_data.certificate))
-
-        with open(self.__tempfolder__.name + "/secom_key.pem", "wb") as f:
-            f.write(base64.b64decode(test_data.private_key))
-
-        self.cert = (self.__tempfolder__.name + "/secom.crt", self.__tempfolder__.name + "/secom_key.pem")
-
-        with open(self.__tempfolder__.name + "/root.crt", "wb") as f:
-            f.write(base64.b64decode(test_data.root_certificate))
-
-        self.root_cert = self.__tempfolder__.name + "/root.crt"
-
-        logging.info(f"Temp folder: {self.__tempfolder__.name}")
 
 
     def run_search_test(self, url : str, data: str, expected_code : int = 200) -> tuple[bool, dict, str]:
@@ -68,10 +57,10 @@ class MsrOpenApiValidator:
         :param url: The URL to query
         :param data: Search filter data
         :param expected_code: The expected HTTP status code
-        :return: the result and either the search result or the exception
+        :return: the result and either the search result or the exceptions
         """
         resp = requests.post(url,
-                             cert=self.cert,
+                             cert=self._pki_services.get_client_certificate(),
                              data=data,
                              headers=self.headers,
                              timeout=self.timeout)
@@ -128,7 +117,7 @@ class MsrOpenApiValidator:
         """
         try:
             resp = requests.get(url + f"/{transaction_id}",
-                                cert=self.cert,
+                                cert=self._pki_services.get_client_certificate(),
                                 headers=self.headers,
                                 timeout=self.timeout)
 
@@ -163,6 +152,9 @@ class MsrOpenApiValidator:
         search_service_url = self.url + "api/secom/v2/searchService"
         retrieve_results_url = self.url + "api/secom/v2/retrieveResults"
 
+        search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+        search_filter.envelope_signature = signature
+
         # Test an empty search
         (success, response, error) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()))
         result1 = TestResult(
@@ -182,6 +174,9 @@ class MsrOpenApiValidator:
                 service_instance = search_result.service_instance[0]
                 search_filter = self.get_new_search_filter()
                 search_filter.envelope.query.name = service_instance.name
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
 
                 test_name2 = f"Search for {search_result.service_instance[0].name} by name"
                 (success2, response2, failure2) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()))
@@ -209,6 +204,9 @@ class MsrOpenApiValidator:
                 search_filter = self.get_new_search_filter()
                 search_filter.envelope.query.status = service_instance.status
 
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
                 test_name3 = f"Search for {service_instance.name} by status ({service_instance.status})"
                 (success3, response3, failure3) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()))
                 
@@ -234,6 +232,9 @@ class MsrOpenApiValidator:
                 search_filter = self.get_new_search_filter()
                 search_filter.envelope.geometry = service_instance.coverage_area[0]
 
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
                 test_name4 = f"Search for {search_result.service_instance[0].name} by geometry"
                 (success4, response4, failure4) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()))
                 
@@ -248,8 +249,28 @@ class MsrOpenApiValidator:
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
 
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
+                # Test incorrect envelope signature results in a 400
+                test_name11 = "Test incorrect envelope signature generates a 400 response"
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = "INVALID" + signature
+                (success11, response11, failure11) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), 400)
+                result11 = TestResult(
+                    test_name=test_name11,
+                    test_success=success11,
+                    full_response=response11,
+                    failure_reason=failure11
+                )
+                test_results.results.append(result11)
+
                 # Test unauthorised access to the search service
                 test_name5 = "Test unauthorised search generates a 401 response"
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
                 (success5, response5, failure5) = self.run_unauthorised_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), 401)
                 
                 result5 = TestResult(
@@ -266,6 +287,10 @@ class MsrOpenApiValidator:
                 # Test invalid status search result in a 400
                 test_name6 = "Test invalid status search generates a 400 response"
                 search_filter.envelope.query.status = "!!INVALID!!"
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
                 (success6, response6, failure6) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), 400)
                 
                 result6 = TestResult(
@@ -282,6 +307,10 @@ class MsrOpenApiValidator:
                 # Test 404 is returned when no results are found
                 test_name7 = "Test no results found generates a 404 response"
                 search_filter.envelope.query.name = "INVALID SERVICE NAME - SHOULD NOT BE FOUND"
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
                 (success7, response7, failure7) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), 404)
 
                 result7 = TestResult(
@@ -296,6 +325,9 @@ class MsrOpenApiValidator:
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
                 search_filter.local_only = False
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
 
                 (success8, response8, failure8) = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()))
 
@@ -342,7 +374,7 @@ class MsrOpenApiValidator:
                 )
                 test_results.results.append(result10)
 
-        self.__tempfolder__.cleanup()
+        self._pki_services.cleanup()
 
         return test_results
 

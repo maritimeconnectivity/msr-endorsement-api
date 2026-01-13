@@ -11,3 +11,10 @@ class SecomEnvelope:
     envelope_signature_time : datetime = datetime.now()
     envelope_signature_reference : str = "asdf"
 
+    def payload_to_bytes(self) -> bytes:
+        """
+        Return the envelope as bytes
+        :return: The contents of the envelope as bytes
+        """
+        dictionary = vars(self)
+        return bytes(str(dictionary), encoding='utf-8')

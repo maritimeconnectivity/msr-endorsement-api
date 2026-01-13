@@ -22,3 +22,4 @@ class SecomSearchFilter:
         }
 
         return dictionary
+

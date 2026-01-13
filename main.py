@@ -9,8 +9,7 @@ from app.model.test_data import TestData
 
 description = """
 
-## 
-Validate a given URL against the MSR OpenAPI schema
+## Validate a given URL against the MSR OpenAPI schema
 
 """
 

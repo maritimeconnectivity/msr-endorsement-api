@@ -51,3 +51,11 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
         dictionary["envelopeSignatureReference"] = self.envelope_signature_reference
 
         return dictionary
+
+    def payload_to_bytes(self) -> bytes:
+        """
+        Return the envelope as bytes
+        :return: The contents of the envelope as bytes
+        """
+        dictionary = self.to_secom_dict()
+        return bytes(str(dictionary), encoding='utf-8')

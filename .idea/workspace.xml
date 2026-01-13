@@ -4,31 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/ServiceRegistryValidator.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/controllers/validate_msr_controller.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/enums/data_product_type.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/secom_constants.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_search_filter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_search_parameters.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_search_result.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_service_instance.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/test_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/test_result.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/test_results.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schema/MSRv2.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Updated requirements.txt">
+      <change afterPath="$PROJECT_DIR$/app/model/exceptions/signature_validation_exception.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/services/pki_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/secom/v2/secom_search_filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_search_filter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +26,17 @@
       <list>
         <option value="Python Script" />
       </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
     </option>
   </component>
   <component name="Git.Settings">
@@ -73,17 +70,20 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/lawrence/Documents/Projects/ServiceRegistryValidator/main.py",
+    "last_opened_file_path": "/home/lawrence/Documents/Projects/ServiceRegistryValidator/app/model/exceptions",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/model/exceptions" />
+      <recent name="$PROJECT_DIR$/app/services" />
       <recent name="$PROJECT_DIR$/schema" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -159,26 +159,58 @@
       <workItem from="1767692266028" duration="2113000" />
       <workItem from="1767777121126" duration="6630000" />
       <workItem from="1767790815191" duration="2209000" />
-      <workItem from="1767862892270" duration="16255000" />
+      <workItem from="1767862892270" duration="16845000" />
+      <workItem from="1767948618836" duration="48000" />
+      <workItem from="1767948672501" duration="108000" />
+      <workItem from="1767948794380" duration="1384000" />
+      <workItem from="1768212882145" duration="1205000" />
+      <workItem from="1768317627867" duration="5051000" />
     </task>
+    <task id="LOCAL-00001" summary="Validation working. No UI">
+      <option name="closed" value="true" />
+      <created>1767890709267</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1767890709267</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Updated requirements.txt">
+      <option name="closed" value="true" />
+      <created>1767890772073</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1767890772073</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Validation working. No UI" />
+    <MESSAGE value="Updated requirements.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated requirements.txt" />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py</url>
-          <line>129</line>
-          <option name="timeStamp" value="11" />
+          <url>file://$PROJECT_DIR$/app/services/pki_services.py</url>
+          <line>108</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py</url>
+          <line>60</line>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FastAPI.coverage" NAME="FastAPI Coverage Results" MODIFIED="1767888326144" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FastAPI.coverage" NAME="FastAPI Coverage Results" MODIFIED="1768322728932" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$main.coverage" NAME="main Coverage Results" MODIFIED="1767630895515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FAstAPI.coverage" NAME="FAstAPI Coverage Results" MODIFIED="1767638808403" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$secom_search_filter.coverage" NAME="secom_search_filter Coverage Results" MODIFIED="1766136800121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model/secom/v2" />
