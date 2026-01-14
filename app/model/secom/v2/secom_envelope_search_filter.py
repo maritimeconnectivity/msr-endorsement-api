@@ -58,4 +58,4 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
         :return: The contents of the envelope as bytes
         """
         dictionary = self.to_secom_dict()
-        return bytes(str(dictionary), encoding='utf-8')
+        return bytes(str(dictionary).replace(" ",""), encoding='utf-8')

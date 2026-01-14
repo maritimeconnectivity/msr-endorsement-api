@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Added PKI service to sign envelopes">
+    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Added some logging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/pki_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/pki_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +53,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "FastAPI.FAstAPI.executor": "Run",
-    "FastAPI.FastAPI.executor": "Run",
+    "FastAPI.FastAPI.executor": "Debug",
     "HTTP Request.generated-requests | #1.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.app.executor": "Debug",
@@ -157,7 +158,9 @@
       <workItem from="1767948672501" duration="108000" />
       <workItem from="1767948794380" duration="1384000" />
       <workItem from="1768212882145" duration="1205000" />
-      <workItem from="1768317627867" duration="5298000" />
+      <workItem from="1768317627867" duration="5707000" />
+      <workItem from="1768379998174" duration="1197000" />
+      <workItem from="1768395156530" duration="3256000" />
     </task>
     <task id="LOCAL-00001" summary="Validation working. No UI">
       <option name="closed" value="true" />
@@ -183,7 +186,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768323351718</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added some logging">
+      <option name="closed" value="true" />
+      <created>1768323593872</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1768323593872</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -193,21 +204,11 @@
     <MESSAGE value="Validation working. No UI" />
     <MESSAGE value="Updated requirements.txt" />
     <MESSAGE value="Added PKI service to sign envelopes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added PKI service to sign envelopes" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/app/model/secom/v2/secom_envelope_search_filter.py</url>
-          <line>60</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Added some logging" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added some logging" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FastAPI.coverage" NAME="FastAPI Coverage Results" MODIFIED="1768323482341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FastAPI.coverage" NAME="FastAPI Coverage Results" MODIFIED="1768398042754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$main.coverage" NAME="main Coverage Results" MODIFIED="1767630895515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FAstAPI.coverage" NAME="FAstAPI Coverage Results" MODIFIED="1767638808403" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$secom_search_filter.coverage" NAME="secom_search_filter Coverage Results" MODIFIED="1766136800121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model/secom/v2" />
