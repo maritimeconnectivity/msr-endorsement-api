@@ -1,21 +1,14 @@
 import json
+from time import sleep
 from uuid import uuid4
 
 import requests
-
-import logging
-import base64
-import os
-
-
 
 from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.exceptions import InvalidData
 from requests import RequestException
 
-from app.model.secom.secom_constants import SecomConstants
-from app.model.secom.v2.secom_envelope import SecomEnvelope
 from app.model.secom.v2.secom_envelope_search_filter import SecomEnvelopeSearchFilter
 from app.model.secom.v2.secom_search_filter import SecomSearchFilter
 from app.model.secom.v2.secom_search_parameters import SecomSearchParameters
@@ -32,7 +25,7 @@ class MsrOpenApiValidator:
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
-    timeout : int = 30
+    timeout : int = 5
     open_api : OpenAPI
     url : str
 
@@ -56,6 +49,7 @@ class MsrOpenApiValidator:
         Query the MSR with the given data
         :param url: The URL to query
         :param data: Search filter data
+        :param test_title: The title of the test
         :param expected_code: The expected HTTP status code
         :return: the result and either the search result or the exceptions
         """
@@ -96,6 +90,7 @@ class MsrOpenApiValidator:
         Try a valid query without a certificate
         :param url: The URL to query
         :param data: The faulty data structure to send
+        :param test_title: The title of the test
         :param expected_code: The expected HTTP status code
         :return: the result and either the search result or failure text
         """
@@ -133,6 +128,7 @@ class MsrOpenApiValidator:
         Try a retrieve result request with the given transaction id and check the response code
         :param url: the url of the retrieve service
         :param transaction_id: the transaction id to retrieve
+        :param test_title: The title of the test
         :param expected_code: the expected response code
         :return: the result and either the search result or failure text
         """
@@ -211,7 +207,7 @@ class MsrOpenApiValidator:
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
-                test_name = f"Search for {search_result.service_instance[0].name} by instance ID {search_result.service_instance[0].instance_id}"
+                test_name = f"Search for {search_result.service_instance[0].name} by instance ID: {search_result.service_instance[0].instance_id}"
                 instant_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name)
 
                 # Check every result contains the name
@@ -319,10 +315,35 @@ class MsrOpenApiValidator:
 
                 test_results.results.append(empty_search_result)
 
+                # Reset the search filter
+                # Test searching for a service instance by imo number alone results in a 400
+                search_filter = self.get_new_search_filter()
+                search_filter.envelope.query.imo = "9999999"
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
+                test_name = "Test search by imo number alone results in a 400 response"
+                imo_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
+                test_results.results.append(imo_result)
+
+                # Reset the search filter
+                # Test searching for a service instance by mmsi number alone results in a 400
+                search_filter = self.get_new_search_filter()
+                search_filter.envelope.query.mmsi = "999999999"
+
+                search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
+                search_filter.envelope_signature = signature
+
+                test_name = "Test search by mmsi number alone results in a 400 response"
+                mmsi_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()),
+                                                  test_name, 400)
+                test_results.results.append(mmsi_result)
+
                 # Start a global search
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
-                search_filter.local_only = False
+                search_filter.envelope.local_only = False
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
@@ -335,23 +356,37 @@ class MsrOpenApiValidator:
 
                 global_search_result = SecomSearchResult(global_search_test_result.full_response)
 
-                test_name = f"Test retrieve results for transaction id"
+                test_name = f"Wait 3 seconds then retrieve results for transaction id"
                 if global_search_result is not None and len(global_search_result.service_instance) > 0 and \
                     hasattr(global_search_result.service_instance[0], "transaction_id"):
                     transaction_id = global_search_result.service_instance[0].transaction_id
                     test_name = test_name + f": {transaction_id}"
 
-                    retrieve_result = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    # First attempt to retrieve the result
+                    sleep(3)
+                    retrieve_result_3s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    test_results.results.append(retrieve_result_3s)
 
-                    test_results.results.append(retrieve_result)
+                    # Second attempt to retrieve the result
+                    sleep(3)
+                    test_name = f"Wait 6 seconds then retrieve results for transaction id: {transaction_id}"
+                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    test_results.results.append(retrieve_result_6s)
+
+                    # Final attempt to retrieve the result
+                    sleep(4)
+                    test_name = f"Wait 10 seconds then retrieve results for transaction id: {transaction_id}"
+                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    test_results.results.append(retrieve_result_10s)
+
                 else:
-                    retrieve_result = TestResult(
+                    retrieve_result_3s = TestResult(
                         test_name=test_name,
                         test_success=False,
                         full_response={ "test_skipped" : "No transaction id found in global search result" },
                         failure_reason="No transaction id found in global search result"
                     )
-                    test_results.results.append(retrieve_result)
+                    test_results.results.append(retrieve_result_3s)
 
                 test_name = "Test retrieve results for random transaction id generates a 404 response"
                 uuid = uuid4()
@@ -371,7 +406,5 @@ class MsrOpenApiValidator:
         """
         search_filter = SecomSearchFilter()
         search_filter.envelope = SecomEnvelopeSearchFilter()
-        search_filter.envelope.envelope_root_certificate_thumbprint = "E42BDBD655F88D2686A7F76F558A8C2F835542F3"
         search_filter.envelope.query = SecomSearchParameters()
-        search_filter.envelope_signature = "123123123"
         return search_filter
