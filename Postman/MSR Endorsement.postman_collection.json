@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "638d9c19-8cd9-4605-9b62-e00970f28dba",
+		"name": "MSR Endorsement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10959078"
+	},
+	"item": [
+		{
+			"name": "TestServiceRegistry",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"test_url\": \"{{MSR_Address}}\",\n    \"certificate\": \"{{Public_Cert}}\",\n    \"private_key\": \"{{Private_Cert}}\",\n    \"root_certificate\": \"{{Root_CA_Cert}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/testServiceRegistry",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"testServiceRegistry"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					"pm.test(\"tests ran successfully\", function () {",
+					"    pm.response.to.not.be.error;",
+					"",
+					"    var jsonData = pm.response.json();",
+					"    pm.expect(jsonData).to.have.property(\"results\");",
+					"});",
+					"",
+					"pm.test(\"all tests were successful\", function () {",
+					"    var jsonData = pm.response.json();",
+					"    var failureList = [];",
+					"",
+					"    // Iterate through the results array using forEach",
+					"    jsonData.results.forEach(function(result) {",
+					"        if (result.test_success === false) {",
+					"            failureList.push(result.test_name + \" failed: \" + result.failure_reason);",
+					"        }",
+					"    });",
+					"",
+					"    // Display failed tests if any",
+					"    if (failureList.length > 0) {",
+					"        console.log(\"Failed tests:\");",
+					"        failureList.forEach(function(failure) {",
+					"            console.log(\"  - \" + failure);",
+					"        });",
+					"    }",
+					"",
+					"    // Test passes only if there are no failures",
+					"    pm.expect(failureList, \"Failed tests: \" + failureList.join(\",\\n\")).to.be.empty;",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "MSR_Address",
+			"value": ""
+		},
+		{
+			"key": "Public_Cert",
+			"value": ""
+		},
+		{
+			"key": "Private_Cert",
+			"value": ""
+		},
+		{
+			"key": "Root_CA_Cert",
+			"value": ""
+		}
+	]
+}
