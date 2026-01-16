@@ -141,7 +141,7 @@ class MsrOpenApiValidator:
             if resp.status_code != expected_code:
                 return TestResult(test_name=test_title,
                                   test_success=False,
-                                  full_response=resp.json(),
+                                  full_response={ "serverResponse" :resp.text },
                                   failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
             # Wrap the request objects with adapters
@@ -157,16 +157,10 @@ class MsrOpenApiValidator:
                               failure_reason="")
 
         except Exception as e:
-            if resp is not None:
-                return TestResult(test_name=test_title,
-                                  test_success=False,
-                                  full_response={ "serverResponse" : resp.text },
-                                  failure_reason=str(e))
-            else:
-                return TestResult(test_name=test_title,
-                                  test_success=False,
-                                  full_response={ "serverResponse" : "" },
-                                  failure_reason=str(e))
+            return TestResult(test_name=test_title,
+                              test_success=False,
+                              full_response={ "serverResponse" : resp.text if resp is not None else "" },
+                              failure_reason=str(e))
 
 
     def validate_msr(self):
@@ -179,7 +173,7 @@ class MsrOpenApiValidator:
         search_filter = self.get_new_search_filter()
 
         search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResults"
+        retrieve_results_url = self.url + "api/secom/v2/retrieveResult"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature

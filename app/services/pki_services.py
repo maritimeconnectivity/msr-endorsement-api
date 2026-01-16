@@ -37,7 +37,7 @@ class PKIServices:
     protection_scheme = "SECOM"
 
     # Private variables
-    __temp_folder__ : TemporaryDirectory
+    _temp_folder : TemporaryDirectory
 
     def __init__(self, public_cert : str, private_cert : str, root_cert : str) -> None:
         """
@@ -47,20 +47,20 @@ class PKIServices:
         :param root_cert: The root certificate string
         """
 
-        self.__tempfolder__ = tempfile.TemporaryDirectory(delete=False)
+        self._tempfolder = tempfile.TemporaryDirectory(delete=False)
 
-        self.public_key = self.__tempfolder__.name + "/public_cert.pem"
+        self.public_key = self._tempfolder.name + "/public_cert.pem"
         with open(self.public_key, "wb") as f:
             f.write(base64.b64decode(public_cert))
 
-        self.private_key = self.__tempfolder__.name + "/private_cert.pem"
+        self.private_key = self._tempfolder.name + "/private_cert.pem"
         with open(self.private_key, "wb") as f:
             f.write(base64.b64decode(private_cert))
 
         self.root_ca_cert = base64.b64decode(root_cert)
         self.root_ca_fingerprint, self.root_ca_fingerprint_hash_algorithm = self.calculate_ca_certificate_fingerprint()
 
-        logging.info(f"Temp folder: {self.__tempfolder__.name}")
+        logging.info(f"Temp folder: {self._tempfolder.name}")
 
 
     def calculate_ca_certificate_fingerprint(self,
@@ -253,4 +253,4 @@ class PKIServices:
         Remove the temporary folder
         :return: None
         """
-        self.__tempfolder__.cleanup()
+        self._tempfolder.cleanup()

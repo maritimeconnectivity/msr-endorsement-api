@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Tidied code">
-      <change afterPath="$PROJECT_DIR$/Postman/MSR Endorsement.postman_collection.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Added missing resources">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/schema/MSRv2-dodgy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/pki_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/pki_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,8 +34,25 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;l0rro&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/maritimeconnectivity/msr-endorsement-api.git&quot;,
+    &quot;accountId&quot;: &quot;301d4962-f62e-4c51-8286-1b59cbe9a076&quot;
+  }
+}</component>
   <component name="HttpClientOnboardingState">{
   &quot;isOnboardingCommentShown&quot;: true
 }</component>
@@ -53,7 +70,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "FastAPI.FAstAPI.executor": "Run",
-    "FastAPI.FastAPI.executor": "Run",
+    "FastAPI.FastAPI.executor": "Debug",
     "HTTP Request.generated-requests | #1.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.app.executor": "Debug",
@@ -63,8 +80,8 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/lawrence/Documents/Projects/ServiceRegistryValidator/Postman",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/lawrence/Documents/Projects/ServiceRegistryValidator",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -76,6 +93,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Postman" />
       <recent name="$PROJECT_DIR$/app/model/exceptions" />
       <recent name="$PROJECT_DIR$/app/services" />
@@ -162,7 +180,8 @@
       <workItem from="1768317627867" duration="5707000" />
       <workItem from="1768379998174" duration="1197000" />
       <workItem from="1768395156530" duration="8465000" />
-      <workItem from="1768467185200" duration="9830000" />
+      <workItem from="1768467185200" duration="13764000" />
+      <workItem from="1768582159023" duration="1589000" />
     </task>
     <task id="LOCAL-00001" summary="Validation working. No UI">
       <option name="closed" value="true" />
@@ -204,7 +223,23 @@
       <option name="project" value="LOCAL" />
       <updated>1768398421051</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added more tests">
+      <option name="closed" value="true" />
+      <created>1768478935992</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1768478935992</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added missing resources">
+      <option name="closed" value="true" />
+      <created>1768478949860</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1768478949860</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -216,10 +251,23 @@
     <MESSAGE value="Added PKI service to sign envelopes" />
     <MESSAGE value="Added some logging" />
     <MESSAGE value="Tidied code" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tidied code" />
+    <MESSAGE value="Added more tests" />
+    <MESSAGE value="Added missing resources" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added missing resources" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py</url>
+          <line>140</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FastAPI.coverage" NAME="FastAPI Coverage Results" MODIFIED="1768478755853" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FastAPI.coverage" NAME="FastAPI Coverage Results" MODIFIED="1768583669024" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$main.coverage" NAME="main Coverage Results" MODIFIED="1767630895515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$FAstAPI.coverage" NAME="FAstAPI Coverage Results" MODIFIED="1767638808403" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$secom_search_filter.coverage" NAME="secom_search_filter Coverage Results" MODIFIED="1766136800121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/model/secom/v2" />
