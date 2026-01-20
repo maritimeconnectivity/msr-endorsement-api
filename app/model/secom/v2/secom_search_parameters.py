@@ -105,7 +105,7 @@ class SecomSearchParameters:
         """
 
         payload = ""
-        payload += self.name.lower() if self.name is not None else ""
+        payload += self.name if self.name is not None else ""
         payload += "."
         payload += self.status if self.status is not None else ""
         payload += "."

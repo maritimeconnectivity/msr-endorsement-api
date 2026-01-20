@@ -276,6 +276,9 @@ class MsrOpenApiValidator:
                 # Test unauthorised access to the search service
                 test_name = "Test unauthorised search generates a 401 response"
 
+                # Reset the search filter
+                search_filter = self.get_new_search_filter()
+
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
                 unauth_result = self.run_unauthorised_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 401)
@@ -301,6 +304,9 @@ class MsrOpenApiValidator:
 
                 # Test 404 is returned when no results are found
                 test_name = "Test no results found generates a 404 response"
+
+                # Reset the search filter
+                search_filter = self.get_new_search_filter()
                 search_filter.envelope.query.name = "INVALID SERVICE NAME - SHOULD NOT BE FOUND"
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
