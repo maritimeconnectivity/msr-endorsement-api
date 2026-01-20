@@ -2,7 +2,7 @@
     Secom Envelope object
 """
 from datetime import datetime
-
+from app.model.secom.secom_constants import SecomConstants as sc
 
 class SecomEnvelope:
 
@@ -16,5 +16,15 @@ class SecomEnvelope:
         Return the envelope as bytes
         :return: The contents of the envelope as bytes
         """
-        dictionary = vars(self)
-        return bytes(str(dictionary), encoding='utf-8')
+        payload = ""
+
+        payload += "["
+        for certificate in self.envelope_signature_certificate:
+            payload += certificate + "."
+        payload = payload[:-1] + "]."
+
+        payload += self.envelope_root_certificate_thumbprint + "."
+        payload += str(int(self.envelope_signature_time.timestamp())) + "."
+        payload += self.envelope_signature_reference.lower()
+
+        return bytes(payload, encoding='utf-8')

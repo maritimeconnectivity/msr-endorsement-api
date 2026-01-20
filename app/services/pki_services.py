@@ -112,7 +112,10 @@ class PKIServices:
 
         # Get the signature and the signature reference
         signature = self.get_data_signature(envelope.payload_to_bytes())
+        logging.info("-----------------------------------------")
+        logging.info("Payload: %s", envelope.payload_to_bytes())
         logging.info("Signature: %s", signature)
+        logging.info("-----------------------------------------")
         return envelope, signature
 
     def verify_ecdsa_384_sha3_data_signature(self, data : bytes,

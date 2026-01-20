@@ -12,6 +12,7 @@ class SecomSearchParameters:
     name : str | None
     status : str | None
     version : str | None
+    keywords : list[str] | None
     description : str | None
     data_product_type : DataProductType | None
     specification_id : str | None
@@ -29,6 +30,7 @@ class SecomSearchParameters:
         self.name = filters.get("name", None)
         self.status = filters.get("status", None)
         self.version = filters.get("version", None)
+        self.keywords = filters.get("keywords", None)
         self.description = filters.get("description", None)
         self.data_product_type = filters.get("data_product_type", None)
         self.specification_id = filters.get("specification_id", None)
@@ -42,12 +44,12 @@ class SecomSearchParameters:
         self.endpoint_uri =  filters.get("endpoint_uri", None)
 
 
-    def to_secom_dict(self) -> dict[str, str]:
+    def to_secom_dict(self) -> dict[str, str | list[str]]:
         """
             Convert object to a Secom capatible dictionary
         """
 
-        dictionary : dict[str, str] = {}
+        dictionary : dict[str, str | list[str]] = {}
 
         if self.name is not None:
             dictionary["name"] = self.name
@@ -57,6 +59,9 @@ class SecomSearchParameters:
 
         if self.version is not None:
             dictionary["version"] = self.version
+
+        if self.keywords is not None:
+            dictionary["keywords"] = self.keywords
 
         if self.description is not None:
             dictionary["description"] = self.description
@@ -92,3 +97,45 @@ class SecomSearchParameters:
             dictionary["endpointUri"] = self.endpoint_uri
 
         return dictionary
+
+    def payload_to_bytes(self) -> bytes:
+        """
+        Generate the payload as a string for signature generation
+        :return: a byte string
+        """
+
+        payload = ""
+        payload += self.name.lower() if self.name is not None else ""
+        payload += "."
+        payload += self.status if self.status is not None else ""
+        payload += "."
+        payload += self.version.lower() if self.version is not None else ""
+        payload += "."
+
+        if self.keywords is not None:
+            for keyword in self.keywords:
+                payload += keyword.lower() + "."
+        else:
+            payload += "."
+
+        payload += self.description.lower() if self.description is not None else ""
+        payload += "."
+        payload += self.data_product_type.name.lower() if self.data_product_type is not None else ""
+        payload += "."
+        payload += self.specification_id.lower() if self.specification_id is not None else ""
+        payload += "."
+        payload += self.design_id.lower() if self.design_id is not None else ""
+        payload += "."
+        payload += self.instance_id.lower() if self.instance_id is not None else ""
+        payload += "."
+        payload += self.mmsi.lower() if self.mmsi is not None else ""
+        payload += "."
+        payload += self.imo.lower() if self.imo is not None else ""
+        payload += "."
+        payload += self.service_type.lower() if self.service_type is not None else ""
+        payload += "."
+        payload += self.unlocode.lower() if self.unlocode is not None else ""
+        payload += "."
+        payload += self.endpoint_uri.lower() if self.endpoint_uri is not None else ""
+
+        return bytes(payload, encoding='utf-8')

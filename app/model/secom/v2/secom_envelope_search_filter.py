@@ -54,8 +54,18 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
 
     def payload_to_bytes(self) -> bytes:
         """
-        Return the envelope as bytes
+        Return the envelope as bytes or signature generation
         :return: The contents of the envelope as bytes
         """
-        dictionary = self.to_secom_dict()
-        return bytes(str(dictionary).replace(" ",""), encoding='utf-8')
+        payload = ""
+        payload += self.query.payload_to_bytes().decode() if self.query is not None else ""
+        payload += "."
+        payload += self.geometry if self.geometry is not None else ""
+        payload += "."
+        payload += str(self.include_xml).lower() if self.include_xml is not None else ""
+        payload += "."
+        payload += str(self.local_only).lower()
+        payload += "."
+        payload += super().payload_to_bytes().decode()
+
+        return bytes(payload, encoding='utf-8')
