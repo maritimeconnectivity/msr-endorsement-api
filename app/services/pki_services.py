@@ -2,7 +2,7 @@
     Service used to generate signatures and certificate hashes
 """
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 from hashlib import sha3_384, sha384
 from collections.abc import Callable
@@ -107,7 +107,7 @@ class PKIServices:
                                                            .replace("-----BEGIN CERTIFICATE-----", "")
                                                            .replace("-----END CERTIFICATE-----", ""))
 
-        envelope.envelope_signature_time = datetime.now()
+        envelope.envelope_signature_time = datetime.now(timezone.utc).replace(microsecond=0)
         envelope.envelope_signature_reference = self.digital_signature_reference().name
 
         # Get the signature and the signature reference
