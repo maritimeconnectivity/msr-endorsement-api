@@ -364,9 +364,9 @@ class MsrOpenApiValidator:
                 global_search_result = SecomSearchResult(global_search_test_result.full_response)
 
                 test_name = f"Wait 3 seconds then retrieve results for transaction id"
-                if global_search_result is not None and len(global_search_result.service_instance) > 0 and \
-                    hasattr(global_search_result.service_instance[0], "transaction_id"):
-                    transaction_id = global_search_result.service_instance[0].transaction_id
+
+                if global_search_result is not None:
+                    transaction_id = global_search_result.transaction_id
                     test_name = test_name + f": {transaction_id}"
 
                     # First attempt to retrieve the result
