@@ -250,7 +250,7 @@ class MsrOpenApiValidator:
                 # A necessary trick because the SECOMLIB is written to accept only a Geometry and
                 # not a collection of 1. An issue has been raised to fix this.
                 geom = wkt.loads(service_instance.coverage_area[0])
-                cleaned_geo = gImeom.geoms[0].wkt if geom.geom_type == "GeometryCollection" else (
+                cleaned_geo = geom.geoms[0].wkt if geom.geom_type == "GeometryCollection" else (
                     geom.wkt)
 
 
