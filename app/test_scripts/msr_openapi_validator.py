@@ -152,11 +152,16 @@ class MsrOpenApiValidator:
             # Validate + unmarshal the response against the request
             # self.open_api.validate_request(openapi_request)
             self.open_api.validate_response(openapi_request, openapi_response)
-            return TestResult(test_name=test_title,
-                              test_success=True,
-                              full_response=resp.json(),
-                              failure_reason="")
 
+            parsed_response = resp.json()
+
+            return TestResult(
+                test_name=test_title,
+                test_success=True,
+                full_response=parsed_response if isinstance(parsed_response, dict)
+                else {"serverResponse": parsed_response},
+                failure_reason=""
+            )
         except Exception as e:
             return TestResult(test_name=test_title,
                               test_success=False,
