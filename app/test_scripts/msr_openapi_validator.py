@@ -291,6 +291,7 @@ class MsrOpenApiValidator:
                 # Test invalid status search result in a 400
                 test_name = "Test invalid status search generates a 400 response"
                 search_filter.envelope.query.status = "!!INVALID!!"
+                search_filter.envelope.local_only = False
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
