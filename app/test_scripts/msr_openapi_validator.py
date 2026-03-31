@@ -395,6 +395,16 @@ class MsrOpenApiValidator:
 
                 test_results.results.append(invalid_transation_id_result)
 
+            # Return an error that is visible in Postman, when the MSR has zero instances
+            else:
+                err_no_instance = (
+                    TestResult(test_name="ERR NO INSTANCE",
+                                  full_response={ "test_skipped" : "No service instances found in MSR, unable to test searching by instance ID, status and geometry" },
+                                  test_success=False,
+                                  failure_reason=f"Provide at least one instance to the MSR to "
+                                                 f"test full functionality",))
+                test_results.results.append(err_no_instance)
+
         self._pki_services.cleanup()
 
         return test_results
