@@ -8,6 +8,7 @@ from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.exceptions import InvalidData
 from requests import RequestException
+from shapely import wkt
 
 from app.model.secom.v2.secom_envelope_search_filter import SecomEnvelopeSearchFilter
 from app.model.secom.v2.secom_search_filter import SecomSearchFilter
@@ -245,7 +246,15 @@ class MsrOpenApiValidator:
                 # Test searching for a service instance by geometry
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
-                search_filter.envelope.geometry = service_instance.coverage_area[0]
+
+                # A necessary trick because the SECOMLIB is written to accept only a Geometry and
+                # not a collection of 1. An issue has been raised to fix this.
+                geom = wkt.loads(service_instance.coverage_area[0])
+                cleaned_geo = gImeom.geoms[0].wkt if geom.geom_type == "GeometryCollection" else (
+                    geom.wkt)
+
+
+                search_filter.envelope.geometry = cleaned_geo
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
