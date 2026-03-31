@@ -703,9 +703,17 @@
       "SearchResult": {
         "type": "object",
         "required": [
+          "transactionId",
           "serviceInstance"
         ],
         "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "The unique identifier of this search. This must be returned in the global search, even if the local search did not yield any results.",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
           "serviceInstance": {
             "type": "array",
             "items": {
@@ -720,7 +728,6 @@
       "ServiceInstanceObject": {
         "type": "object",
         "required": [
-          "transactionId",
           "coverageArea",
           "endpointUri",
           "instanceId",
@@ -730,13 +737,6 @@
           "version"
         ],
         "properties": {
-          "transactionId": {
-            "type": "string",
-            "description": "The unique identifier of this search. This must be returned in the global search, even if the local search did not yield any results.",
-            "format": "uuid",
-            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-            "example": "550e8400-e29b-41d4-a716-446655440000"
-          },
           "instanceId": {
             "type": "string",
             "minLength": 1,
