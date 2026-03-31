@@ -13,6 +13,10 @@ class SecomSearchResult:
 
     def __init__(self, results : dict) -> None:
 
+        self.transaction_id = results["transactionId"]
+
+        print(f"set transaction id to {self.transaction_id}")
+
         self.service_instance = []
 
         for result in results["serviceInstance"]:
