@@ -299,7 +299,7 @@
         }
       }
     },
-    "/api/secom/v2/retrieveResults/{transactionId}": {
+    "/api/secom/v2/retrieveResult/{transactionId}": {
       "get": {
         "tags": [
           "ServiceRegistry"
@@ -365,7 +365,7 @@
         }
       }
     },
-    "/api/secom/v2/retrieveResults": {
+    "/api/secom/v2/retrieveResult": {
       "post": {
         "tags": [
           "ServiceRegistry"

@@ -174,7 +174,7 @@ class MsrOpenApiValidator:
         search_filter = self.get_new_search_filter()
 
         search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResults"
+        retrieve_results_url = self.url + "api/secom/v2/retrieveResult"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
