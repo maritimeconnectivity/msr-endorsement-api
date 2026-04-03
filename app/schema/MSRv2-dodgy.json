@@ -981,5 +981,10 @@
         "additionalProperties": true
       }
     }
+  },
+  "servers": [
+  {
+    "url": "http://localhost:8444/api/secom"
   }
+]
 }
