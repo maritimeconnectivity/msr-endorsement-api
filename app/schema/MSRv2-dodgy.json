@@ -235,7 +235,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RetriveResultObject"
+                "$ref": "#/components/schemas/RetrieveResultObject"
               }
             }
           }
@@ -535,7 +535,7 @@
         "type": "string",
         "description": "Maritime Service (MS) types as defined by IMO/IALA/IMO-IHO harmonisation group."
       },
-      "RetriveResultObject": {
+      "RetrieveResultObject": {
         "required": [
           "envelope",
           "envelopeSignature"
@@ -668,7 +668,10 @@
       "EnvelopeSearchResultObject": {
         "required": [
           "transactionId",
-          "serviceInstance"
+          "serviceInstance",
+          "envelopeSignatureCertificate",
+          "envelopeRootCertificateThumbprint",
+          "envelopeSignatureTime"
         ],
         "type": "object",
         "properties": {
@@ -685,6 +688,23 @@
               "$ref": "#/components/schemas/ServiceInstanceObject"
             },
             "description": "List of Service Instances found"
+          },
+          "envelopeSignatureCertificate": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
+          },
+          "envelopeRootCertificateThumbprint": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
+          },
+          "envelopeSignatureTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Time stamp when the envelope is signed"
           }
         },
         "additionalProperties": false,
