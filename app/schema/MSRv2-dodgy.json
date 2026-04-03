@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.1",
   "info": {
     "title": "SECOM Service discovery interface",
     "description": "Compliant with SECOM IEC 63173-2 v2.0",
@@ -9,9 +9,8 @@
     },
     "version": "v2"
   },
-  "jsonSchemaDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
   "paths": {
-    "/api/secom/v2/searchService": {
+    "/v2/searchService": {
       "post": {
         "tags": [
           "ServiceRegistry"
@@ -24,16 +23,6 @@
               "schema": {
                 "$ref": "#/components/schemas/SearchFilterObject"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchFilterObject"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchFilterObject"
-              }
             }
           }
         },
@@ -41,17 +30,7 @@
           "200": {
             "description": "SearchResult",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResult"
                 }
@@ -59,54 +38,16 @@
             }
           },
           "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecomError"
-                }
-              }
-            }
+            "description": "Bad Request"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecomError"
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "403": {
-            "description": "Not Authorized to request Information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecomError"
-                }
-              }
-            }
+            "description": "Not Authorized to request Information"
           },
           "404": {
-            "description": "Information not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecomError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecomError"
-                }
-              }
-            }
+            "description": "\"Information not Found\""
           }
         }
       },
@@ -127,7 +68,7 @@
           {
             "name": "Status",
             "in": "query",
-            "description": "Status of service. One of \"provisional\", \"released\", \"deprecated\" or \"deleted\".",
+            "description": "Status of service. One of “provisional”, “released”, “deprecated” or “deleted”.",
             "schema": {
               "$ref": "#/components/schemas/ServiceInstanceStatus"
             }
@@ -162,9 +103,12 @@
           {
             "name": "DataProductType",
             "in": "query",
-            "description": "A JSON array of strings that define the datatypes. S-100 products may be listed with either a hyphen present or not (e.g. S-421 or S421, which represent an equal dataProductType).",
+            "description": "A JSON array of strings that define the datatypes.",
             "schema": {
-              "type": "string"
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           },
           {
@@ -245,15 +189,6 @@
             }
           },
           {
-            "name": "instanceAsXml",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
             "name": "localOnly",
             "in": "query",
             "description": "",
@@ -267,17 +202,7 @@
           "200": {
             "description": "SearchResult",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResult"
                 }
@@ -294,78 +219,12 @@
             "description": "Not Authorized to request Information"
           },
           "404": {
-            "description": "Information not Found"
+            "description": "\"Information not Found\""
           }
         }
       }
     },
-    "/api/secom/v2/retrieveResult/{transactionId}": {
-      "get": {
-        "tags": [
-          "ServiceRegistry"
-        ],
-        "summary": "This operation asks for result from global search based on given transaction identifier from previous search",
-        "parameters": [
-          {
-            "name": "transactionId",
-            "in": "path",
-            "description": "",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "SearchResult",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Not Authorized to request Information"
-          },
-          "404": {
-            "description": "Information not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RetrieveError"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RetrieveError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/secom/v2/retrieveResult": {
+    "/v2/retrieveResult": {
       "post": {
         "tags": [
           "ServiceRegistry"
@@ -378,16 +237,6 @@
               "schema": {
                 "$ref": "#/components/schemas/RetriveResultObject"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RetriveResultObject"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RetriveResultObject"
-              }
             }
           }
         },
@@ -395,17 +244,7 @@
           "200": {
             "description": "SearchResult",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResult"
                 }
@@ -422,7 +261,171 @@
             "description": "Not Authorized to request Information"
           },
           "404": {
-            "description": "Information not Found"
+            "description": "\"Information not Found\""
+          }
+        }
+      }
+    },
+    "/api/g1191/v2/uploadResults/{transactionId}": {
+      "post": {
+        "tags": [
+          "ServiceRegistry"
+        ],
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UploadSearchResultObject"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DefaultResponseObject"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid MRN.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseObject"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/g1191/v2/updateService/{instanceId}": {
+      "put": {
+        "tags": [
+          "ServiceRegistry"
+        ],
+        "parameters": [
+          {
+            "name": "instanceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServiceObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DefaultResponseObject"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation checks failed. Message must include information of what checks failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseObject"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseObject"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/ping": {
+      "description": "The statusEndpoint API that must be supported by all services (non-vessels) registered in the MSR",
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "timestamp": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
           }
         }
       }
@@ -431,136 +434,120 @@
   "components": {
     "schemas": {
       "EnvelopeRetrieveResultObject": {
-        "type": "object",
         "required": [
           "envelopeRootCertificateThumbprint",
           "envelopeSignatureCertificate",
-          "envelopeSignatureReference",
           "envelopeSignatureTime",
           "transactionId"
         ],
+        "type": "object",
         "properties": {
           "transactionId": {
+            "pattern": "^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$",
             "type": "string",
-            "description": "The unique identifier of this search. This must be returned in the global search, even if the local search did not yield any results.",
+            "description": "The unique identifier of this search. This must be returned in the global search, \r\neven if the local search did not yield any results.",
             "format": "uuid",
-            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
             "example": "550e8400-e29b-41d4-a716-446655440000"
           },
           "envelopeSignatureCertificate": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
           },
           "envelopeRootCertificateThumbprint": {
+            "minLength": 1,
             "type": "string",
-            "minLength": 1
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
           },
           "envelopeSignatureTime": {
             "type": "string",
+            "description": "Time stamp when the envelope is signed",
             "format": "date-time"
-          },
-          "envelopeSignatureReference": {
-            "type": "string",
-            "minLength": 1
           }
         },
         "additionalProperties": false,
         "description": "The envelope object for retrieve result"
       },
       "EnvelopeSearchFilterObject": {
-        "type": "object",
         "required": [
           "envelopeRootCertificateThumbprint",
           "envelopeSignatureCertificate",
-          "envelopeSignatureReference",
           "envelopeSignatureTime"
         ],
+        "type": "object",
         "properties": {
           "query": {
             "$ref": "#/components/schemas/SearchParameters"
           },
           "geometry": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "Geometry as string in WKT format."
-          },
-          "includeXml": {
-            "type": [
-              "boolean",
-              "null"
-            ],
-            "description": "Flag to include the instance xml or not, default = false",
-            "default": false
+            "type": "string",
+            "description": "Geometry as string in WKT format.",
+            "nullable": true
           },
           "localOnly": {
-            "type": [
-              "boolean",
-              "null"
-            ],
-            "description": "Flag for search locally or globally. default=false",
-            "default": false
+            "type": "boolean",
+            "description": "Flag for search locally or globally.\r\ndefault=false",
+            "default": false,
+            "nullable": true
           },
           "envelopeSignatureCertificate": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
           },
           "envelopeRootCertificateThumbprint": {
+            "minLength": 1,
             "type": "string",
-            "minLength": 1
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
           },
           "envelopeSignatureTime": {
             "type": "string",
+            "description": "Time stamp when the envelope is signed",
             "format": "date-time"
-          },
-          "envelopeSignatureReference": {
-            "type": "string",
-            "minLength": 1
           }
         },
         "additionalProperties": false
       },
       "MaritimeServiceType": {
-        "type": "string",
-        "description": "Maritime Service (MS) types as defined by IMO/IALA/IMO-IHO harmonisation group.",
         "enum": [
-          "MS 1 \u2013 VTS Information Service (INS)",
-          "MS 2 \u2013 VTS Navigational Assistance Service (NAS)",
-          "MS 3 \u2013 Traffic Organization Service (TOS)",
-          "MS 4 \u2013 Port Support Service (PSS)",
-          "MS 5 \u2013 Maritime Safety Information (MSI) Service",
-          "MS 6 \u2013 Pilotage Service",
-          "MS 7 \u2013 Tug Service)",
-          "MS 8 \u2013 Vessel Shore Reporting",
-          "MS 9 \u2013 Telemedical Assistance Service (TMAS)",
-          "MS 10 \u2013 Maritime Assistance Service (MAS)",
-          "MS 11 \u2013 Nautical Chart Service",
-          "MS 12 \u2013 Nautical Publications Service",
-          "MS 13 \u2013 Ice Navigation Service",
-          "MS 14 \u2013 Meteorological Information Service",
-          "MS 15 \u2013 Real-Time Hydrographic & Environmental Information Service",
-          "MS 16 \u2013 Search and Rescue (SAR) Service",
+          "MS 1 – VTS Information Service (INS)",
+          "MS 2 – VTS Navigational Assistance Service (NAS)",
+          "MS 3 – Traffic Organization Service (TOS)",
+          "MS 4 – Port Support Service (PSS)",
+          "MS 5 – Maritime Safety Information (MSI) Service",
+          "MS 6 – Pilotage Service",
+          "MS 7 – Tug Service)",
+          "MS 8 – Vessel Shore Reporting",
+          "MS 9 – Telemedical Assistance Service (TMAS)",
+          "MS 10 – Maritime Assistance Service (MAS)",
+          "MS 11 – Nautical Chart Service",
+          "MS 12 – Nautical Publications Service",
+          "MS 13 – Ice Navigation Service",
+          "MS 14 – Meteorological Information Service",
+          "MS 15 – Real-Time Hydrographic & Environmental Information Service",
+          "MS 16 – Search and Rescue (SAR) Service",
           "OTHER"
-        ]
+        ],
+        "type": "string",
+        "description": "Maritime Service (MS) types as defined by IMO/IALA/IMO-IHO harmonisation group."
       },
       "RetriveResultObject": {
-        "type": "object",
         "required": [
           "envelope",
           "envelopeSignature"
         ],
+        "type": "object",
         "properties": {
           "envelope": {
             "$ref": "#/components/schemas/EnvelopeRetrieveResultObject"
           },
           "envelopeSignature": {
-            "type": "string",
             "minLength": 1,
+            "type": "string",
             "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
           }
         },
@@ -568,18 +555,18 @@
         "description": "Information input retrieve result from previous search"
       },
       "SearchFilterObject": {
-        "type": "object",
         "required": [
           "envelope",
           "envelopeSignature"
         ],
+        "type": "object",
         "properties": {
           "envelope": {
             "$ref": "#/components/schemas/EnvelopeSearchFilterObject"
           },
           "envelopeSignature": {
-            "type": "string",
             "minLength": 1,
+            "type": "string",
             "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
           }
         },
@@ -589,131 +576,163 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "Name of service."
+            "type": "string",
+            "description": "Name of service.",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/ServiceInstanceStatus"
           },
           "version": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "Version number of the instance. Semantic versioning should be preferred."
+            "type": "string",
+            "description": "Version number of the instance. Semantic versioning should be preferred.",
+            "nullable": true
           },
           "keywords": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "A JSON array of keyword strings, e.g. [\"navigation\", \"warning\", \"navWarn\", \"s-124\"]."
+            "description": "A JSON array of keyword strings, e.g. [\"navigation\", \"warning\", \"navWarn\", \"s-124\"].",
+            "nullable": true
           },
           "description": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "Human-readable description of service."
+            "type": "string",
+            "description": "Human-readable description of service.",
+            "nullable": true
           },
           "dataProductType": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "A JSON array of strings that define the datatypes. S-100 products may be listed with either a hyphen present or not (e.g. S-421 or S421, which represent an equal dataProductType).",
-            "example": "S-124",
-            "pattern": "^(S-?\\d{2,3}|RTZ|EPC|ASM)$"
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "A JSON array of strings that define the datatypes.",
+            "nullable": true,
+            "example": "S-124"
           },
           "specificationId": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "type": "string",
             "description": "The MRN of the service specification.",
-            "example": "urn:mrn:imo:mmsi:123456789",
-            "pattern": "^urn:mrn:[a-z]+(?:[:a-z0-9][a-z0-9\\-\\.]*){2,}$"
+            "nullable": true,
+            "example": "urn:mrn:imo:mmsi:123456789"
           },
           "designId": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "type": "string",
             "description": "The MRN of the service design.",
-            "example": "urn:mrn:imo:mmsi:123456789",
-            "pattern": "^urn:mrn:[a-z]+(?:[:a-z0-9][a-z0-9\\-\\.]*){2,}$"
+            "nullable": true,
+            "example": "urn:mrn:imo:mmsi:123456789"
           },
           "instanceId": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "type": "string",
             "description": "The MRN of the service instance.",
-            "example": "urn:mrn:imo:mmsi:123456789",
-            "pattern": "^urn:mrn:[a-z]+(?:[:a-z0-9][a-z0-9\\-\\.]*){2,}$"
+            "nullable": true,
+            "example": "urn:mrn:imo:mmsi:123456789"
           },
           "mmsi": {
-            "type": [
-              "integer",
-              "null"
-            ],
+            "type": "integer",
+            "description": "MMSI number for a ship",
             "format": "int32",
-            "description": "MMSI number for a ship"
+            "nullable": true
           },
           "imo": {
-            "type": [
-              "integer",
-              "null"
-            ],
+            "type": "integer",
+            "description": "IMO number for a ship",
             "format": "int32",
-            "description": "IMO number for a ship"
+            "nullable": true
           },
           "serviceType": {
             "$ref": "#/components/schemas/MaritimeServiceType"
           },
           "unlocode": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "An array of UN/LOCODEs that describe the coverage area of the service."
+            "description": "An array of UN/LOCODEs that describe the coverage area of the service.",
+            "nullable": true
           },
           "endpointUri": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "pattern": "^(https?|ftp):\\/\\/([a-zA-Z0-9\\-._~%!$&'()*+,;=]+@)?([a-zA-Z0-9\\-._~]+)(:\\d+)?(\\/[^\\s]*)?$",
+            "type": "string",
             "description": "The endpoint of the service. The format and completeness of the endpoint depend on the endpoint type.",
-            "format": "uri",
-            "example": "https://example.com",
-            "pattern": "^(https?|ftp):\\/\\/(?:[a-zA-Z0-9\\-._~%!$&'()*+,;=]+@)?(?:[a-zA-Z0-9\\-._~]+)(?::\\d+)?(?:\\/[^\\s]*)?$"
+            "format": "url",
+            "nullable": true,
+            "example": "https://example.com"
           }
         },
         "additionalProperties": false
       },
-      "SearchResult": {
-        "type": "object",
+      "EnvelopeSearchResultObject": {
         "required": [
           "transactionId",
           "serviceInstance"
         ],
+        "type": "object",
         "properties": {
           "transactionId": {
+            "pattern": "^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$",
             "type": "string",
-            "description": "The unique identifier of this search. This must be returned in the global search, even if the local search did not yield any results.",
+            "description": "The unique identifier of this search. This must be returned in the global search, \r\neven if the local search did not yield any results.",
             "format": "uuid",
-            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
             "example": "550e8400-e29b-41d4-a716-446655440000"
           },
+          "serviceInstance": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceInstanceObject"
+            },
+            "description": "List of Service Instances found"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The envelope object for search result"
+      },
+      "SearchResult": {
+        "required": [
+          "envelope",
+          "envelopeSignature"
+        ],
+        "type": "object",
+        "properties": {
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeSearchResultObject"
+          },
+          "envelopeSignature": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The signature of the EnvelopeSearchResultObject in HEX format without whitespace or linebreaks"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information output from Service Registry search"
+      },
+      "UploadSearchResultObject": {
+        "required": [
+          "envelope",
+          "envelopeSignature"
+        ],
+        "type": "object",
+        "properties": {
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeUploadSearchResultObject"
+          },
+          "envelopeSignature": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnvelopeUploadSearchResultObject": {
+        "required": [
+          "serviceInstance"
+        ],
+        "type": "object",
+        "properties": {
           "serviceInstance": {
             "type": "array",
             "items": {
@@ -726,9 +745,10 @@
         "description": "Information output from Service Registry search"
       },
       "ServiceInstanceObject": {
-        "type": "object",
         "required": [
+          "apiDoc",
           "coverageArea",
+          "description",
           "endpointUri",
           "instanceId",
           "name",
@@ -736,108 +756,94 @@
           "status",
           "version"
         ],
+        "type": "object",
         "properties": {
           "instanceId": {
-            "type": "string",
             "minLength": 1,
-            "pattern": "^urn:mrn:[a-z]+(?:[:a-z0-9][a-z0-9\\-\\.]*){2,}$",
-            "description": "The MRN of the instance. This must match the MRN in the instance\u2019s certificate.",
+            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "type": "string",
+            "description": "The MRN of the instance. This must match the MRN in the instance’s certificate.",
             "example": "urn:mrn:imo:mmsi:123456789"
           },
           "version": {
-            "type": "string",
             "minLength": 1,
+            "type": "string",
             "description": "Version number of the instance. Semantic versioning should be preferred."
           },
           "name": {
-            "type": "string",
             "minLength": 1,
+            "type": "string",
             "description": "Name of service."
           },
           "status": {
             "$ref": "#/components/schemas/ServiceInstanceStatus"
           },
           "description": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "minLength": 1,
+            "type": "string",
             "description": "Human-readable description of service."
           },
           "dataProductType": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "A JSON array of strings that define the datatypes."
+            "description": "A JSON array of strings that define the datatypes.",
+            "nullable": true
           },
           "organizationId": {
-            "type": "string",
             "minLength": 1,
-            "pattern": "^urn:mrn:[a-z]+(?:[:a-z0-9][a-z0-9\\-\\.]*){2,}$",
+            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "type": "string",
             "description": "The MRN of the provider of the service.",
             "example": "urn:mrn:imo:mmsi:123456789"
           },
           "endpointUri": {
-            "type": "string",
             "minLength": 1,
-            "format": "uri",
             "pattern": "^[a-zA-Z][a-zA-Z0-9+.\\-]*:(\\/\\/[^\\/\\s?#]*)?([^\\s?#]*)(\\?[^#\\s]*)?(#\\S*)?$",
+            "type": "string",
             "description": "The endpoint of the service. The format and completeness of the endpoint depend on the endpoint type.",
+            "format": "uri",
             "example": "urn:mrn:iala:aton:se:12345"
           },
           "endpointType": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "An array of the protocol fields of the transport of the service (e.g. REST, SECOM, MMS)."
+            "description": "An array of the protocol fields of the transport of the service (e.g. REST, SECOM, MMS).",
+            "nullable": true
           },
           "keywords": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "A JSON array of keyword strings, e.g. [\"navigation\", \"warning\", \"navWarn\", \"s-124\"]."
+            "description": "A JSON array of keyword strings, e.g. [\"navigation\", \"warning\", \"navWarn\", \"s-124\"].",
+            "nullable": true
           },
           "unlocode": {
-            "type": [
-              "string",
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "An array of UN/LOCODEs that describe the coverage area of the service."
+            "description": "An array of UN/LOCODEs that describe the coverage area of the service.",
+            "nullable": true
           },
           "implementsDesigns": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "The MRNs of the service design the service that is implemented."
+            "description": "The MRNs of the service design the service that is implemented.",
+            "nullable": true
           },
           "apiDoc": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "uri",
-            "pattern": "^(https?|ftp):\\/\\/(?:[a-zA-Z0-9\\-._~%!$&'()*+,;=]+@)?(?:[a-zA-Z0-9\\-._~]+)(?::\\d+)?(?:\\/[^\\s]*)?$",
+            "minLength": 1,
+            "pattern": "^(https?|ftp):\\/\\/([a-zA-Z0-9\\-._~%!$&'()*+,;=]+@)?([a-zA-Z0-9\\-._~]+)(:\\d+)?(\\/[^\\s]*)?$",
+            "type": "string",
             "description": "The URL to the documentation of the instance. Preferably not only API documentation but also necessary contact information, etc.",
+            "format": "url",
             "example": "https://example.com"
           },
           "coverageArea": {
@@ -847,94 +853,113 @@
             },
             "description": "Strings in WKT format defining the coverage area of the service."
           },
-          "instanceAsXml": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "The XML version of the instance information according to the XML Schema defined in G1128."
-          },
           "imo": {
-            "type": [
-              "integer",
-              "null"
-            ],
+            "type": "integer",
+            "description": "IMO number for a ship",
             "format": "int32",
-            "description": "IMO number for a ship"
+            "nullable": true
           },
           "mmsi": {
-            "type": [
-              "integer",
-              "null"
-            ],
+            "type": "integer",
+            "description": "MMSI number for a ship",
             "format": "int32",
-            "description": "MMSI number for a ship"
+            "nullable": true
           },
           "certificates": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "Public certificate x.509 in PEM format. Should include all currently valid certificates of the instance."
+            "description": "Public certificate x.509 in PEM format. Should include all currently valid certificates of the instance.",
+            "nullable": true
           },
-          "sourceMSR": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "When result is from global search, the MRNs of the MSRs that returned the result."
+          "sourceMSRs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "When result is from global search, the MRNs of the MSRs that returned the result.",
+            "nullable": true
           },
           "unsupportedParams": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "A list of parameters that were not supported in the search. In global search all parameters must be forwarded. This must be empty / unset when returned as a result of retrieveResult."
+            "description": "A list of parameters that were not supported in the search. \r\nIn global search all parameters must be forwarded. \r\nThis must be empty / unset when returned as a result of retrieveResult.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
         "description": "Service Instance Object returned from Service Registry search"
       },
       "ServiceInstanceStatus": {
-        "type": "string",
-        "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)",
         "enum": [
-          "PROVISIONAL",
-          "RELEASED",
-          "DEPRECATED",
-          "DELETED"
-        ]
-      },
-      "SecomError": {
-        "type": "object",
-        "required": [
+          "Provisional",
+          "Released",
+          "Deprecated",
+          "Deleted"
         ],
+        "type": "string",
+        "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
+      },
+      "EnvelopeUpdateServiceObject": {
+        "type": "object",
+        "properties": {
+          "certificates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "endpointUri": {
+            "type": "string",
+            "nullable": true
+          },
+          "apiDoc": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusEndpoint": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "UpdateServiceObject": {
+        "required": [
+          "envelope",
+          "envelopeSignature"
+        ],
+        "type": "object",
+        "properties": {
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeUpdateServiceObject"
+          },
+          "envelopeSignature": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DefaultResponseObject": {
+        "type": "object",
         "properties": {
           "message": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "The error message"
-          },
-          "SECOM_ResponseCode": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string",
+            "nullable": false
           }
-        }
-      },
-      "RetrieveError": {
-        "type": "string"
+        },
+        "additionalProperties": true
       }
     }
   }
 }
-
