@@ -12,13 +12,11 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
 
     query : SecomSearchParameters | None
     geometry : str | None
-    include_xml : bool | None
     local_only : bool = True
 
     def __init__(self) -> None:
         self.query = None
         self.geometry = None
-        self.include_xml = None
 
 
 
@@ -37,8 +35,6 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
         if self.geometry is not None:
             dictionary["geometry"] = self.geometry
 
-        if self.include_xml is not None:
-            dictionary["includeXml"] = self.include_xml
 
         dictionary["localOnly"] = self.local_only
 

@@ -10,8 +10,10 @@ from openapi_core.validation.response.exceptions import InvalidData
 from requests import RequestException
 from shapely import wkt
 
+from app.model.secom.v2.secom_envelope_retrieve_result import SecomEnvelopeRetrieveResult
 from app.model.secom.v2.secom_envelope_search_filter import SecomEnvelopeSearchFilter
 from app.model.secom.v2.secom_envelope_search_result import SecomEnvelopeSearchResult
+from app.model.secom.v2.secom_retrieve_result import SecomRetrieveResult
 from app.model.secom.v2.secom_search_filter import SecomSearchFilter
 from app.model.secom.v2.secom_search_parameters import SecomSearchParameters
 from app.model.secom.v2.secom_search_result import SecomSearchResult
@@ -139,10 +141,21 @@ class MsrOpenApiValidator:
         :return: the result and either the search result or failure text
         """
         try:
-            resp = requests.get(url + f"/{transaction_id}",
-                                cert=self._pki_services.get_client_certificate(),
-                                headers=self.headers,
-                                timeout=self.timeout)
+            print("-----Run retrieve test with transaction id: " + transaction_id)
+            retrieve_request = SecomRetrieveResult()
+            retrieve_request.envelope = SecomEnvelopeRetrieveResult(transaction_id)
+            retrieve_request.envelope, signature = self._pki_services.sign_envelope_object(
+                retrieve_request.envelope
+            )
+            retrieve_request.envelope_signature = signature
+
+            resp = requests.post(
+                url,
+                cert=self._pki_services.get_client_certificate(),
+                data=json.dumps(retrieve_request.to_secom_dict()),
+                headers=self.headers,
+                timeout=self.timeout
+            )
 
             if resp.status_code != expected_code:
                 return TestResult(test_name=test_title,
