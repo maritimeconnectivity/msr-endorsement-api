@@ -62,8 +62,6 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
         payload += "."
         payload += self.geometry if self.geometry is not None else ""
         payload += "."
-        payload += str(self.include_xml).lower() if self.include_xml is not None else ""
-        payload += "."
         payload += str(self.local_only).lower()
         payload += "."
         payload += super().payload_to_bytes().decode()
