@@ -1,7 +1,7 @@
 """
     Implementation of the Secom Search Results
 """
-from app.model.secom.v2.secom_service_instance import ServiceInstance
+from app.model.secom.v2.secom_envelope_search_result import SecomEnvelopeSearchResult
 
 
 class SecomSearchResult:
@@ -9,15 +9,11 @@ class SecomSearchResult:
         Secom Search Result class
     """
 
-    service_instance : list[ServiceInstance]
+    envelope: SecomEnvelopeSearchResult
+    envelope_signature: str
 
     def __init__(self, results : dict) -> None:
 
-        self.transaction_id = results["transactionId"]
+        self.envelope = SecomEnvelopeSearchResult(results["envelope"])
 
-        print(f"set transaction id to {self.transaction_id}")
-
-        self.service_instance = []
-
-        for result in results["serviceInstance"]:
-            self.service_instance.append(ServiceInstance(result))
+        self.envelope_signature = results["envelopeSignature"]

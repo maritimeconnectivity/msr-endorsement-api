@@ -611,21 +611,21 @@
             "example": "S-124"
           },
           "specificationId": {
-            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "pattern": "^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$",
             "type": "string",
             "description": "The MRN of the service specification.",
             "nullable": true,
             "example": "urn:mrn:imo:mmsi:123456789"
           },
           "designId": {
-            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "pattern": "^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$",
             "type": "string",
             "description": "The MRN of the service design.",
             "nullable": true,
             "example": "urn:mrn:imo:mmsi:123456789"
           },
           "instanceId": {
-            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "pattern": "^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$",
             "type": "string",
             "description": "The MRN of the service instance.",
             "nullable": true,
@@ -707,7 +707,7 @@
             "description": "Time stamp when the envelope is signed"
           }
         },
-        "additionalProperties": false,
+        "additionalProperties": true,
         "description": "The envelope object for search result"
       },
       "SearchResult": {
@@ -766,9 +766,7 @@
       },
       "ServiceInstanceObject": {
         "required": [
-          "apiDoc",
           "coverageArea",
-          "description",
           "endpointUri",
           "instanceId",
           "name",
@@ -780,7 +778,7 @@
         "properties": {
           "instanceId": {
             "minLength": 1,
-            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "pattern": "^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$",
             "type": "string",
             "description": "The MRN of the instance. This must match the MRN in the instance’s certificate.",
             "example": "urn:mrn:imo:mmsi:123456789"
@@ -801,7 +799,8 @@
           "description": {
             "minLength": 1,
             "type": "string",
-            "description": "Human-readable description of service."
+            "description": "Human-readable description of service.",
+            "nullable": true
           },
           "dataProductType": {
             "type": "array",
@@ -813,7 +812,7 @@
           },
           "organizationId": {
             "minLength": 1,
-            "pattern": "/^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$/",
+            "pattern": "^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$",
             "type": "string",
             "description": "The MRN of the provider of the service.",
             "example": "urn:mrn:imo:mmsi:123456789"
@@ -864,7 +863,8 @@
             "type": "string",
             "description": "The URL to the documentation of the instance. Preferably not only API documentation but also necessary contact information, etc.",
             "format": "url",
-            "example": "https://example.com"
+            "example": "https://example.com",
+            "nullable": true
           },
           "coverageArea": {
             "type": "array",
@@ -915,10 +915,10 @@
       },
       "ServiceInstanceStatus": {
         "enum": [
-          "Provisional",
-          "Released",
-          "Deprecated",
-          "Deleted"
+          "PROVISIONAL",
+          "RELEASED",
+          "DEPRECATED",
+          "DELETED"
         ],
         "type": "string",
         "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
