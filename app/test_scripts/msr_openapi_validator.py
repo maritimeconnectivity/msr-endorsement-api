@@ -8,8 +8,12 @@ from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.exceptions import InvalidData
 from requests import RequestException
+from shapely import wkt
 
+from app.model.secom.v2.secom_envelope_retrieve_result import SecomEnvelopeRetrieveResult
 from app.model.secom.v2.secom_envelope_search_filter import SecomEnvelopeSearchFilter
+from app.model.secom.v2.secom_envelope_search_result import SecomEnvelopeSearchResult
+from app.model.secom.v2.secom_retrieve_result import SecomRetrieveResult
 from app.model.secom.v2.secom_search_filter import SecomSearchFilter
 from app.model.secom.v2.secom_search_parameters import SecomSearchParameters
 from app.model.secom.v2.secom_search_result import SecomSearchResult
@@ -60,6 +64,8 @@ class MsrOpenApiValidator:
                              headers=self.headers,
                              timeout=self.timeout)
 
+
+        print(resp.json())
         if resp.status_code != expected_code:
             return TestResult(test_name=test_title,
                               test_success=False,
@@ -80,6 +86,7 @@ class MsrOpenApiValidator:
                               failure_reason="")
 
         except Exception as e:
+            print("Validation failed with exception: " + str(e))
             return TestResult(test_name=test_title,
                               test_success=False,
                               full_response={ "serverResponse" : resp.text },
@@ -134,10 +141,21 @@ class MsrOpenApiValidator:
         :return: the result and either the search result or failure text
         """
         try:
-            resp = requests.get(url + f"/{transaction_id}",
-                                cert=self._pki_services.get_client_certificate(),
-                                headers=self.headers,
-                                timeout=self.timeout)
+            print("-----Run retrieve test with transaction id: " + transaction_id)
+            retrieve_request = SecomRetrieveResult()
+            retrieve_request.envelope = SecomEnvelopeRetrieveResult(transaction_id)
+            retrieve_request.envelope, signature = self._pki_services.sign_envelope_object(
+                retrieve_request.envelope
+            )
+            retrieve_request.envelope_signature = signature
+
+            resp = requests.post(
+                url,
+                cert=self._pki_services.get_client_certificate(),
+                data=json.dumps(retrieve_request.to_secom_dict()),
+                headers=self.headers,
+                timeout=self.timeout
+            )
 
             if resp.status_code != expected_code:
                 return TestResult(test_name=test_title,
@@ -152,11 +170,16 @@ class MsrOpenApiValidator:
             # Validate + unmarshal the response against the request
             # self.open_api.validate_request(openapi_request)
             self.open_api.validate_response(openapi_request, openapi_response)
-            return TestResult(test_name=test_title,
-                              test_success=True,
-                              full_response=resp.json(),
-                              failure_reason="")
 
+            parsed_response = resp.json()
+
+            return TestResult(
+                test_name=test_title,
+                test_success=True,
+                full_response=parsed_response if isinstance(parsed_response, dict)
+                else {"serverResponse": parsed_response},
+                failure_reason=""
+            )
         except Exception as e:
             return TestResult(test_name=test_title,
                               test_success=False,
@@ -174,7 +197,7 @@ class MsrOpenApiValidator:
         search_filter = self.get_new_search_filter()
 
         search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResults"
+        retrieve_results_url = self.url + "api/secom/v2/retrieveResult"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -188,11 +211,13 @@ class MsrOpenApiValidator:
 
         if result.test_success:
             search_result = SecomSearchResult(result.full_response)
+            envelope = search_result.envelope
 
             # If there is a service instance returned, test searching for it by name
-            if search_result is not None and len(search_result.service_instance) > 0:
+            if envelope is not None and len(envelope.service_instance) > 0:
 
-                service_instance = search_result.service_instance[0]
+                service_instance = envelope.service_instance[0]
+
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
@@ -202,13 +227,16 @@ class MsrOpenApiValidator:
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
-                test_name = f"Search for {search_result.service_instance[0].name} by instance ID: {search_result.service_instance[0].instance_id}"
+                test_name = f"Search for {envelope.service_instance[0].name} by instance ID: {
+                envelope.service_instance[0].instance_id}"
                 instant_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name)
 
                 # Check every result contains the name
                 if instant_result.test_success:
                     search_result = SecomSearchResult(instant_result.full_response)
-                    for result in search_result.service_instance:
+
+                    envelope = search_result.envelope
+                    for result in envelope.service_instance:
                         if service_instance.instance_id not in result.instance_id:
                             instant_result.test_success = False
                             instant_result.failure_reason = f"Test failed: {result.instance_id} not found in {result.instance_id}"
@@ -229,7 +257,8 @@ class MsrOpenApiValidator:
 
                 if status_result.test_success:
                     search_result = SecomSearchResult(status_result.full_response)
-                    for result in search_result.service_instance:
+                    envelope = search_result.envelope
+                    for result in envelope.service_instance:
                         if result.status != service_instance.status:
                             status_result.test_success = False
                             status_result.failure_reason = f"Test failed: {result.status} not found in {search_result.service_instance}"
@@ -240,12 +269,21 @@ class MsrOpenApiValidator:
                 # Test searching for a service instance by geometry
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
-                search_filter.envelope.geometry = service_instance.coverage_area[0]
+
+                # A necessary trick because the SECOMLIB is written to accept only a Geometry and
+                # not a collection of 1. An issue has been raised to fix this.
+                geom = wkt.loads(service_instance.coverage_area[0])
+                cleaned_geo = geom.geoms[0].wkt if geom.geom_type == "GeometryCollection" else (
+                    geom.wkt)
+
+
+                search_filter.envelope.geometry = cleaned_geo
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
-                test_name = f"Search for {search_result.service_instance[0].name} by geometry"
+                test_name = (f"Search for {envelope.service_instance[0].name} by "
+                             f"geometry")
                 geometry_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name)
 
                 test_results.results.append(geometry_result)
@@ -267,7 +305,7 @@ class MsrOpenApiValidator:
                 search_filter.envelope_signature = signature
 
                 # Change the query so the signature is incorrect
-                search_filter.envelope.query.name = search_result.service_instance[0].name
+                search_filter.envelope.query.name = envelope.service_instance[0].name
 
                 bad_signature_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
 
@@ -291,6 +329,7 @@ class MsrOpenApiValidator:
                 # Test invalid status search result in a 400
                 test_name = "Test invalid status search generates a 400 response"
                 search_filter.envelope.query.status = "!!INVALID!!"
+                search_filter.envelope.local_only = False
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
@@ -356,11 +395,12 @@ class MsrOpenApiValidator:
                 test_results.results.append(global_search_test_result)
 
                 global_search_result = SecomSearchResult(global_search_test_result.full_response)
+                envelope = global_search_result.envelope
 
                 test_name = f"Wait 3 seconds then retrieve results for transaction id"
-                if global_search_result is not None and len(global_search_result.service_instance) > 0 and \
-                    hasattr(global_search_result.service_instance[0], "transaction_id"):
-                    transaction_id = global_search_result.service_instance[0].transaction_id
+
+                if global_search_result is not None:
+                    transaction_id = envelope.transaction_id
                     test_name = test_name + f": {transaction_id}"
 
                     # First attempt to retrieve the result
@@ -394,6 +434,16 @@ class MsrOpenApiValidator:
                 invalid_transation_id_result = self.run_retrieve_test(retrieve_results_url, str(uuid), test_name, 404)
 
                 test_results.results.append(invalid_transation_id_result)
+
+            # Return an error that is visible in Postman, when the MSR has zero instances
+            else:
+                err_no_instance = (
+                    TestResult(test_name="ERR NO INSTANCE",
+                                  full_response={ "test_skipped" : "No service instances found in MSR, unable to test searching by instance ID, status and geometry" },
+                                  test_success=False,
+                                  failure_reason=f"Provide at least one instance to the MSR to "
+                                                 f"test full functionality",))
+                test_results.results.append(err_no_instance)
 
         self._pki_services.cleanup()
 

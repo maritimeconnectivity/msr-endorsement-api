@@ -22,10 +22,9 @@ class ServiceInstance:
     endpoint_type : str
     keywords : list[str]
     unlocode : list[str]
-    implements_designs : str
+    implements_designs : list[str]
     api_doc : str
     coverage_area : list[str]
-    instance_as_xml : str
     imo : int
     mmsi : int
     certificates : list[str]
