@@ -33,7 +33,7 @@ class PKIServices:
     public_key : str
     private_key : str
     private_key_password : str | None
-    digital_signature_reference : hashes.HashAlgorithm = sha3_384
+    digital_signature_reference : hashes.HashAlgorithm = sha384
     protection_scheme = "SECOM"
 
     # Private variables
@@ -108,7 +108,6 @@ class PKIServices:
                                                            .replace("-----END CERTIFICATE-----", ""))
 
         envelope.envelope_signature_time = datetime.now(timezone.utc).replace(microsecond=0)
-        envelope.envelope_signature_reference = self.digital_signature_reference().name
 
         # Get the signature and the signature reference
         signature = self.get_data_signature(envelope.payload_to_bytes())
@@ -116,6 +115,7 @@ class PKIServices:
         logging.info("Payload: %s", envelope.payload_to_bytes())
         logging.info("Signature: %s", signature)
         logging.info("-----------------------------------------")
+
         return envelope, signature
 
     def verify_ecdsa_384_sha3_data_signature(self, data : bytes,
@@ -152,7 +152,7 @@ class PKIServices:
 
                 valid = verify_key.verify(signature=bytes.fromhex(signature),
                                           data=data,
-                                          hashfunc=sha3_384,
+                                          hashfunc=sha384,
                                           sigdecode=sigdecode_der)
 
                 if not valid:
