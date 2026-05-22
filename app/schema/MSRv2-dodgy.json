@@ -23,219 +23,15 @@
               "schema": {
                 "$ref": "#/components/schemas/SearchFilterObject"
               }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "SearchResult",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Not Authorized to request Information"
-          },
-          "404": {
-            "description": "\"Information not Found\""
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "ServiceRegistry"
-        ],
-        "summary": "This operation searches for service using REST method GET. If no parameters given, a complete list of local services is given in result.",
-        "parameters": [
-          {
-            "name": "Name",
-            "in": "query",
-            "description": "Name of service.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Status",
-            "in": "query",
-            "description": "Status of service. One of “provisional”, “released”, “deprecated” or “deleted”.",
-            "schema": {
-              "$ref": "#/components/schemas/ServiceInstanceStatus"
-            }
-          },
-          {
-            "name": "Version",
-            "in": "query",
-            "description": "Version number of the instance. Semantic versioning should be preferred.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Keywords",
-            "in": "query",
-            "description": "A JSON array of keyword strings, e.g. [\"navigation\", \"warning\", \"navWarn\", \"s-124\"].",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "Description",
-            "in": "query",
-            "description": "Human-readable description of service.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "DataProductType",
-            "in": "query",
-            "description": "A JSON array of strings that define the datatypes.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "SpecificationId",
-            "in": "query",
-            "description": "The MRN of the service specification.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "DesignId",
-            "in": "query",
-            "description": "The MRN of the service design.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "InstanceId",
-            "in": "query",
-            "description": "The MRN of the service instance.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Mmsi",
-            "in": "query",
-            "description": "MMSI number for a ship",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Imo",
-            "in": "query",
-            "description": "IMO number for a ship",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "ServiceType",
-            "in": "query",
-            "description": "Maritime Service (MS) types as defined by IMO/IALA/IMO-IHO harmonisation group.",
-            "schema": {
-              "$ref": "#/components/schemas/MaritimeServiceType"
-            }
-          },
-          {
-            "name": "Unlocode",
-            "in": "query",
-            "description": "An array of UN/LOCODEs that describe the coverage area of the service.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "EndpointUri",
-            "in": "query",
-            "description": "The endpoint of the service. The format and completeness of the endpoint depend on the endpoint type.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "geometry",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "localOnly",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "SearchResult",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Not Authorized to request Information"
-          },
-          "404": {
-            "description": "\"Information not Found\""
-          }
-        }
-      }
-    },
-    "/v2/retrieveResult": {
-      "post": {
-        "tags": [
-          "ServiceRegistry"
-        ],
-        "summary": "This operation asks for result from global search based on given transaction identifier from previous search",
-        "requestBody": {
-          "description": "",
-          "content": {
-            "application/json": {
+            },
+            "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RetrieveResultObject"
+                "$ref": "#/components/schemas/SearchFilterObject"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchFilterObject"
               }
             }
           }
@@ -244,7 +40,17 @@
           "200": {
             "description": "SearchResult",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              },
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              },
+              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResult"
                 }
@@ -262,6 +68,9 @@
           },
           "404": {
             "description": "\"Information not Found\""
+          },
+          "500": {
+            "description": "\"Internal Server Error\""
           }
         }
       }
@@ -295,37 +104,13 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DefaultResponseObject"
-                  }
-                }
-              }
-            }
+            "description": "OK"
           },
           "400": {
-            "description": "Invalid MRN.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultResponseObject"
-                }
-              }
-            }
+            "description": "Invalid MRN."
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultResponseObject"
-                }
-              }
-            }
+            "description": "Unauthorized"
           }
         }
       }
@@ -356,47 +141,16 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DefaultResponseObject"
-                  }
-                }
-              }
-            }
+            "description": "OK"
           },
           "400": {
-            "description": "Validation checks failed. Message must include information of what checks failed.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultResponseObject"
-                }
-              }
-            }
+            "description": "Validation checks failed. Message must include information of what checks failed."
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultResponseObject"
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultResponseObject"
-                }
-              }
-            }
+            "description": "Forbidden"
           }
         }
       }
@@ -426,6 +180,83 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v2/retrieveResult/{transactionId}": {
+      "post": {
+        "tags": [
+          "ServiceRegistry"
+        ],
+        "summary": "This operation asks for result from global search based on given transaction identifier from previous search",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetrieveResultObject"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetrieveResultObject"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetrieveResultObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SearchResult",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Not Authorized to request Information"
+          },
+          "404": {
+            "description": "\"Information not Found\""
+          },
+          "500": {
+            "description": "\"Internal Server Error\""
           }
         }
       }
@@ -488,7 +319,7 @@
           },
           "localOnly": {
             "type": "boolean",
-            "description": "Flag for search locally or globally.\r\ndefault=false",
+            "description": "True for local only or otherwise a federated search. Default=false",
             "default": false,
             "nullable": true
           },
@@ -534,25 +365,6 @@
         ],
         "type": "string",
         "description": "Maritime Service (MS) types as defined by IMO/IALA/IMO-IHO harmonisation group."
-      },
-      "RetrieveResultObject": {
-        "required": [
-          "envelope",
-          "envelopeSignature"
-        ],
-        "type": "object",
-        "properties": {
-          "envelope": {
-            "$ref": "#/components/schemas/EnvelopeRetrieveResultObject"
-          },
-          "envelopeSignature": {
-            "minLength": 1,
-            "type": "string",
-            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Information input retrieve result from previous search"
       },
       "SearchFilterObject": {
         "required": [
@@ -604,11 +416,15 @@
           "dataProductType": {
             "type": "array",
             "items": {
+              "pattern": "^(S-?\\d{2,3}|RTZ|EPC|ASM)$",
               "type": "string"
             },
-            "description": "A JSON array of strings that define the datatypes.",
+            "description": "A JSON array of strings that define the datatypes. \r\nS-100 products may be listed with either a hyphen present or not \r\n(e.g. S-421 or S421, which represent an equal dataProductType).",
             "nullable": true,
-            "example": "S-124"
+            "example": [
+              "S-124",
+              "S-421"
+            ]
           },
           "specificationId": {
             "pattern": "^urn:mrn:[a-z]+(?::[a-z0-9][a-z0-9\\-\\.]*){2,}$",
@@ -667,11 +483,10 @@
       },
       "EnvelopeSearchResultObject": {
         "required": [
-          "transactionId",
-          "serviceInstance",
-          "envelopeSignatureCertificate",
           "envelopeRootCertificateThumbprint",
-          "envelopeSignatureTime"
+          "envelopeSignatureCertificate",
+          "envelopeSignatureTime",
+          "transactionId"
         ],
         "type": "object",
         "properties": {
@@ -687,7 +502,8 @@
             "items": {
               "$ref": "#/components/schemas/ServiceInstanceObject"
             },
-            "description": "List of Service Instances found"
+            "description": "List of Service Instances found",
+            "nullable": true
           },
           "envelopeSignatureCertificate": {
             "type": "array",
@@ -703,12 +519,11 @@
           },
           "envelopeSignatureTime": {
             "type": "string",
-            "format": "date-time",
-            "description": "Time stamp when the envelope is signed"
+            "description": "Time stamp when the envelope is signed",
+            "format": "date-time"
           }
         },
-        "additionalProperties": true,
-        "description": "The envelope object for search result"
+        "additionalProperties": false
       },
       "SearchResult": {
         "required": [
@@ -723,7 +538,7 @@
           "envelopeSignature": {
             "minLength": 1,
             "type": "string",
-            "description": "The signature of the EnvelopeSearchResultObject in HEX format without whitespace or linebreaks"
+            "description": "The signature of the EnvelopeSearchResultObject in HEX format without whitespace or linebreaks."
           }
         },
         "additionalProperties": false,
@@ -749,6 +564,10 @@
       },
       "EnvelopeUploadSearchResultObject": {
         "required": [
+          "envelopeRootCertificateThumbprint",
+          "envelopeSignatureCertificate",
+          "envelopeSignatureTime",
+          "resultsEndpoint",
           "serviceInstance"
         ],
         "type": "object",
@@ -759,6 +578,29 @@
               "$ref": "#/components/schemas/ServiceInstanceObject"
             },
             "description": "List of Service Instances found"
+          },
+          "envelopeSignatureCertificate": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
+          },
+          "envelopeRootCertificateThumbprint": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
+          },
+          "envelopeSignatureTime": {
+            "type": "string",
+            "description": "Time stamp when the envelope is signed",
+            "format": "date-time"
+          },
+          "resultsEndpoint": {
+            "type": "string",
+            "description": "Endpoint to which this result is meant for. Used to prevent replay attacks. Must contain endpointUri exactly as given in the search message without modifications.",
+            "format": "uri",
+            "example": "https://example.com/uploadResults/6890dbd3-ead0-413b-a0e3-b9aff091a692"
           }
         },
         "additionalProperties": false,
@@ -766,7 +608,8 @@
       },
       "ServiceInstanceObject": {
         "required": [
-          "coverageArea",
+          "apiDoc",
+          "description",
           "endpointUri",
           "instanceId",
           "name",
@@ -799,16 +642,20 @@
           "description": {
             "minLength": 1,
             "type": "string",
-            "description": "Human-readable description of service.",
-            "nullable": true
+            "description": "Human-readable description of service."
           },
           "dataProductType": {
             "type": "array",
             "items": {
+              "pattern": "^(S-?\\d{2,3}|RTZ|EPC|ASM)$",
               "type": "string"
             },
-            "description": "A JSON array of strings that define the datatypes.",
-            "nullable": true
+            "description": "A JSON array of strings that define the datatypes. \r\nS-100 products may be listed with either a hyphen present or not \r\n(e.g. S-421 or S421, which represent an equal dataProductType).",
+            "nullable": true,
+            "example": [
+              "S-124",
+              "S-421"
+            ]
           },
           "organizationId": {
             "minLength": 1,
@@ -863,15 +710,7 @@
             "type": "string",
             "description": "The URL to the documentation of the instance. Preferably not only API documentation but also necessary contact information, etc.",
             "format": "url",
-            "example": "https://example.com",
-            "nullable": true
-          },
-          "coverageArea": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Strings in WKT format defining the coverage area of the service."
+            "example": "https://example.com"
           },
           "imo": {
             "type": "integer",
@@ -908,6 +747,14 @@
             },
             "description": "A list of parameters that were not supported in the search. \r\nIn global search all parameters must be forwarded. \r\nThis must be empty / unset when returned as a result of retrieveResult.",
             "nullable": true
+          },
+          "coverageArea": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Strings in WKT format defining the coverage area of the service.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -915,10 +762,10 @@
       },
       "ServiceInstanceStatus": {
         "enum": [
-          "PROVISIONAL",
-          "RELEASED",
-          "DEPRECATED",
-          "DELETED"
+          "Provisional",
+          "Released",
+          "Deprecated",
+          "Deleted"
         ],
         "type": "string",
         "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
@@ -970,21 +817,26 @@
         },
         "additionalProperties": false
       },
-      "DefaultResponseObject": {
+      "RetrieveResultObject": {
+        "required": [
+          "envelope",
+          "envelopeSignature"
+        ],
         "type": "object",
         "properties": {
-          "message": {
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeRetrieveResultObject"
+          },
+          "envelopeSignature": {
+            "minLength": 1,
             "type": "string",
-            "nullable": false
+            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false,
+        "description": "Information input retrieve result from previous search"
       }
     }
   },
-  "servers": [
-  {
-    "url": "http://localhost:8444/api/secom"
-  }
-]
+  "x-api-sha256": "B6FE818602C6547BA47072BE6A9103166A5F8FBF6B90CD50A2003DD3DCCCEC8C"
 }
