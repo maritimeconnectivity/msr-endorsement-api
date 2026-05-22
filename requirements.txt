@@ -16,9 +16,9 @@ idna==3.11
 isodate==0.7.2
 itsdangerous==2.2.0
 Jinja2==3.1.6
-jsonschema==4.25.1
-jsonschema-path==0.3.4
-jsonschema-specifications==2025.9.1
+jsonschema
+jsonschema-path
+jsonschema-specifications
 lazy-object-proxy==1.12.0
 MarkupSafe==3.0.3
 mistune==3.2.0
@@ -32,7 +32,7 @@ pydantic==2.12.5
 pydantic_core==2.41.5
 python-dotenv==1.2.1
 PyYAML==6.0.3
-referencing==0.37.0
+referencing
 requests==2.32.5
 rfc3339-validator==0.1.4
 rpds-py==0.30.0
