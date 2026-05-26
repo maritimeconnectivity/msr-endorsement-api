@@ -197,7 +197,7 @@ class MsrOpenApiValidator:
         search_filter = self.get_new_search_filter()
 
         search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResult"
+        retrieve_results_url = self.url + "api/secomv2/retrieveResult"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -205,9 +205,25 @@ class MsrOpenApiValidator:
         # Test an empty search
         result = self.run_search_test(search_service_url,
                                                  json.dumps(search_filter.to_secom_dict()),
-                                                 "Test empty search")
+                                                 "Test empty search", 400)
 
         test_results.results.append(result)
+
+
+        # Search for a provisional service. This is necessary since for security reasons an empty
+        # query shall not return all results (DDOS vulnerability)
+
+        search_filter = self.get_new_search_filter()
+        search_filter.envelope.query.status = "PROVISIONAL"
+        search_filter.envelope, signature = self._pki_services.sign_envelope_object(
+            search_filter.envelope)
+        search_filter.envelope_signature = signature
+        result = self.run_search_test(search_service_url,
+                                      json.dumps(search_filter.to_secom_dict()),
+                                      "Test provisional search", 200)
+
+        test_results.results.append(result)
+
 
         if result.test_success:
             search_result = SecomSearchResult(result.full_response)
@@ -444,6 +460,9 @@ class MsrOpenApiValidator:
                                   failure_reason=f"Provide at least one instance to the MSR to "
                                                  f"test full functionality",))
                 test_results.results.append(err_no_instance)
+
+        else:
+            print("Failed to validate MSR, no Provisional instance to validate all queries against")
 
         self._pki_services.cleanup()
 
