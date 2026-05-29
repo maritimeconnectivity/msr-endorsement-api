@@ -269,6 +269,8 @@ class MsrOpenApiValidator:
 
                 search_filter.envelope.geometry = cleaned_geo
 
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
