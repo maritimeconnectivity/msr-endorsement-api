@@ -112,6 +112,9 @@ class MsrOpenApiValidator:
             )
             retrieve_request.envelope_signature = signature
 
+
+
+            print("Contacting URL: ", url)
             resp = requests.post(
                 url,
                 data=json.dumps(retrieve_request.to_secom_dict()),
@@ -159,7 +162,7 @@ class MsrOpenApiValidator:
         search_filter = self.get_new_search_filter()
 
         search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secomv2/retrieveResult"
+        retrieve_results_url = self.url + "api/secom/v2/retrieveResult/"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -404,19 +407,20 @@ class MsrOpenApiValidator:
 
                     # First attempt to retrieve the result
                     sleep(3)
-                    retrieve_result_3s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    retrieve_result_3s = self.run_retrieve_test(retrieve_results_url + transaction_id,
+                                                                str(transaction_id), test_name, 200)
                     test_results.results.append(retrieve_result_3s)
 
                     # Second attempt to retrieve the result
                     sleep(3)
                     test_name = f"Wait 6 seconds then retrieve results for transaction id: {transaction_id}"
-                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
                     test_results.results.append(retrieve_result_6s)
 
                     # Final attempt to retrieve the result
                     sleep(4)
                     test_name = f"Wait 10 seconds then retrieve results for transaction id: {transaction_id}"
-                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
                     test_results.results.append(retrieve_result_10s)
 
                 else:
@@ -430,7 +434,8 @@ class MsrOpenApiValidator:
 
                 test_name = "Test retrieve results for random transaction id generates a 404 response"
                 uuid = uuid4()
-                invalid_transation_id_result = self.run_retrieve_test(retrieve_results_url, str(uuid), test_name, 404)
+                invalid_transation_id_result = self.run_retrieve_test(retrieve_results_url + str(uuid),
+                                                                      str(uuid), test_name, 404)
 
                 test_results.results.append(invalid_transation_id_result)
 
