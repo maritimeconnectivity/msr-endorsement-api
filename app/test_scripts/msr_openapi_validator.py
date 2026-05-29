@@ -62,7 +62,6 @@ class MsrOpenApiValidator:
         :return: the result and either the search result or the exceptions
         """
         resp = requests.post(url,
-                             cert=self._pki_services.get_client_certificate(),
                              data=data,
                              headers=self.headers,
                              timeout=self.timeout)
@@ -95,45 +94,6 @@ class MsrOpenApiValidator:
                               full_response={ "serverResponse" : resp.text },
                               failure_reason=str(e))
 
-
-    def run_unauthorised_search_test(self, url : str, data : str, test_title : str, expected_code : int) -> TestResult:
-        """
-        Try a valid query without a certificate
-        :param url: The URL to query
-        :param data: The faulty data structure to send
-        :param test_title: The title of the test
-        :param expected_code: The expected HTTP status code
-        :return: the result and either the search result or failure text
-        """
-        try:
-            resp = requests.post(url,
-                                 data=data,
-                                 headers=self.headers,
-                                 timeout=self.timeout)
-
-            if resp.status_code != expected_code:
-                return TestResult(test_name=test_title,
-                                  test_success=False,
-                                  full_response=resp.json(),
-                                  failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
-            else:
-                return TestResult(test_name=test_title,
-                                  test_success=resp.status_code == expected_code,
-                                  full_response=resp.json(),
-                                  failure_reason="")
-
-        except RequestException as e:
-            if resp is not None:
-                return TestResult(test_name=test_title,
-                                  test_success=resp.status_code == expected_code,
-                                  full_response={ "serverResponse" :  resp.text },
-                                  failure_reason=str(e))
-            else:
-                return TestResult(test_name=test_title,
-                                  test_success=False,
-                                  full_response={ "serverResponse" :  "" },
-                                  failure_reason=str(e))
-
     def run_retrieve_test(self, url : str, transaction_id: str, test_title : str, expected_code : int = 200) -> TestResult:
         """
         Try a retrieve result request with the given transaction id and check the response code
@@ -154,7 +114,6 @@ class MsrOpenApiValidator:
 
             resp = requests.post(
                 url,
-                cert=self._pki_services.get_client_certificate(),
                 data=json.dumps(retrieve_request.to_secom_dict()),
                 headers=self.headers,
                 timeout=self.timeout
