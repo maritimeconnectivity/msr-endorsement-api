@@ -328,12 +328,14 @@ class MsrOpenApiValidator:
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
 
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+
                 # Generate the envelope signature
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
-                # Change the query so the signature is incorrect
-                search_filter.envelope.query.name = envelope.service_instance[0].name
+                # Change the query instanceID so the signature is incorrect
+                search_filter.envelope.query.instance_id = "GIBBERISH"
 
                 bad_signature_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
 
@@ -412,6 +414,7 @@ class MsrOpenApiValidator:
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
                 search_filter.envelope.local_only = False
+                search_filter.envelope.query.instance_id = self.test_service_instance_id
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
