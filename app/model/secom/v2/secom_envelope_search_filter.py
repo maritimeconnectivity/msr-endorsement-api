@@ -44,7 +44,6 @@ class SecomEnvelopeSearchFilter(SecomEnvelope):
 
         dictionary["envelopeSignatureTime"] =  self.envelope_signature_time.strftime(sc.DATETIME_FORMAT_v2)
 
-        print(f"Final signature time: {dictionary['envelopeSignatureTime']}")
 
 
         return dictionary

@@ -47,6 +47,9 @@ class MsrOpenApiValidator:
                                          private_cert=test_data.private_key,
                                          root_cert=test_data.root_certificate)
 
+        self.test_service_instance_id = test_data.test_service_instance_id
+        print(f"Inited test_service instandes: {self.test_service_instance_id}")
+
 
 
     def run_search_test(self, url : str, data: str, test_title : str, expected_code : int = 200) -> TestResult:
@@ -214,14 +217,23 @@ class MsrOpenApiValidator:
         # query shall not return all results (DDOS vulnerability)
 
         search_filter = self.get_new_search_filter()
-        search_filter.envelope.query.status = "PROVISIONAL"
+
+
+        # Test instance defined through the API
+        search_filter.envelope.query.instance_id = self.test_service_instance_id
+
+        print(f"RUN TEST FOR INSTANCE: {self.test_service_instance_id}")
+
+
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(
             search_filter.envelope)
         search_filter.envelope_signature = signature
         result = self.run_search_test(search_service_url,
                                       json.dumps(search_filter.to_secom_dict()),
-                                      "Test provisional search", 200)
+                                      "Test search for instance", 200)
 
+
+        print(f"RESULT: {result}")
         test_results.results.append(result)
 
 
@@ -462,7 +474,19 @@ class MsrOpenApiValidator:
                 test_results.results.append(err_no_instance)
 
         else:
-            print("Failed to validate MSR, no Provisional instance to validate all queries against")
+            print(f"Failed to validate MSR against test instance {self.test_service_instance_id}:")
+            failRes = TestResult(
+                test_name="PROVISIONAL INSTANCE SEARCH",
+                test_success=False,
+                full_response={
+                    "test_skipped": "No provisional instance found"
+                },
+                failure_reason=(
+                    "CANNOT VALIDATE MSR WHEN A VALID RESULT FROM A PROVISIONAL INSTANCE COULD "
+                    "NOT BE PARSED"
+                )
+            )
+            test_results.results.append(failRes)
 
         self._pki_services.cleanup()
 
