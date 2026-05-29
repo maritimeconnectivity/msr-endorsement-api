@@ -293,24 +293,33 @@ class MsrOpenApiValidator:
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
-                # Change the query instanceID so the signature is incorrect
-                search_filter.envelope.query.instance_id = "GIBBERISH"
+                # Change the signature such that it becomes malformed
+                search_filter.envelope_signature = search_filter.envelope_signature[:-1]
 
                 bad_signature_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
 
                 test_results.results.append(bad_signature_result)
 
-                # Test unauthorised access to the search service
+                # Test failure in authentication when conducting a search yields 401 response
                 test_name = "Test unauthorised search generates a 401 response"
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
 
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
-                unauth_result = self.run_unauthorised_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 401)
+
+                # Now alter the envelope so signature validation should fail on server side
+                search_filter.envelope.query.instance_id = "GIBBERISH"
+
+                # A
+
+                auth_fail_result = self.run_search_test(search_service_url, json.dumps(
+                    search_filter.to_secom_dict()), test_name, 401)
                 
-                test_results.results.append(unauth_result)
+                test_results.results.append(auth_fail_result)
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
