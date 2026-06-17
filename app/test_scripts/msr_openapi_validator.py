@@ -66,8 +66,13 @@ class MsrOpenApiValidator:
                              headers=self.headers,
                              timeout=self.timeout)
 
-
-        print(resp.json())
+        try:
+            print(resp.json())
+        except ValueError:
+            print("Non-JSON response:")
+            print("Status:", resp.status_code)
+            print("Content-Type:", resp.headers.get("Content-Type"))
+            print("Body:", resp.text)
         if resp.status_code != expected_code:
             return TestResult(test_name=test_title,
                               test_success=False,
@@ -331,7 +336,7 @@ class MsrOpenApiValidator:
 
                 # Test invalid status search result in a 400
                 test_name = "Test invalid status search generates a 400 response"
-                search_filter.envelope.query.status = "!!INVALID!!"
+                search_filter.envelope.query.status = 5
                 search_filter.envelope.local_only = False
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
