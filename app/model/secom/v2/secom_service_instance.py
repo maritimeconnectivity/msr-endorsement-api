@@ -14,7 +14,7 @@ class ServiceInstance:
     instance_id : str
     version : str
     name : str
-    status : str
+    status : int
     description : str
     data_product_type : list[DataProductType] | None
     organization_id : str
@@ -38,7 +38,7 @@ class ServiceInstance:
         self.instance_id = result.get("instanceId", "")
         self.version = result.get("version", "")
         self.name = result.get("name", "")
-        self.status = result.get("status", "")
+        self.status = result.get("status", 0)
         self.description = result.get("description", "")
 
         data_product_types = result.get("dataProductTypes", [])

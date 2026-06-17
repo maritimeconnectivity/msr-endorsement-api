@@ -10,7 +10,7 @@ class SecomSearchParameters:
     """
 
     name : str | None
-    status : str | None
+    status : int | None
     version : str | None
     keywords : list[str] | None
     description : str | None
@@ -44,12 +44,12 @@ class SecomSearchParameters:
         self.endpoint_uri =  filters.get("endpoint_uri", None)
 
 
-    def to_secom_dict(self) -> dict[str, str | list[str]]:
+    def to_secom_dict(self) -> dict[str, str | int | list[str]]:
         """
             Convert object to a Secom capatible dictionary
         """
 
-        dictionary : dict[str, str | list[str]] = {}
+        dictionary : dict[str, str | int | list[str]] = {}
 
         if self.name is not None:
             dictionary["name"] = self.name
@@ -107,7 +107,7 @@ class SecomSearchParameters:
         payload = ""
         payload += self.name if self.name is not None else ""
         payload += "."
-        payload += self.status if self.status is not None else ""
+        payload += str(self.status) if self.status is not None else ""
         payload += "."
         payload += self.version.lower() if self.version is not None else ""
         payload += "."

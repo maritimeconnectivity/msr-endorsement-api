@@ -73,10 +73,18 @@ class MsrOpenApiValidator:
             print("Status:", resp.status_code)
             print("Content-Type:", resp.headers.get("Content-Type"))
             print("Body:", resp.text)
+
+        try:
+            response_body = resp.json()
+        except ValueError:
+            response_body = {
+                "serverResponse": resp.text
+            }
+
         if resp.status_code != expected_code:
             return TestResult(test_name=test_title,
                               test_success=False,
-                              full_response=resp.json() ,
+                              full_response=response_body ,
                               failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
         # Wrap the request objects with adapters
@@ -89,7 +97,7 @@ class MsrOpenApiValidator:
             self.open_api.validate_response(openapi_request, openapi_response)
             return TestResult(test_name=test_title,
                               test_success=True,
-                              full_response=resp.json(),
+                              full_response=response_body,
                               failure_reason="")
 
         except Exception as e:
@@ -239,10 +247,14 @@ class MsrOpenApiValidator:
 
                 test_results.results.append(instant_result)
 
-                # Test searching for a service instance by status
+                # Test searching for a service instance by status and name
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
+
                 search_filter.envelope.query.status = service_instance.status
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+                print("-----USING STATUS ", str(service_instance.status) )
+
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
