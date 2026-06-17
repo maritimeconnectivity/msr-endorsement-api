@@ -10,9 +10,9 @@
     "version": "v2"
   },
   "servers": [
-    {
-      "url": "http://localhost:8444/api/secom"
-    }
+  {
+    "url": "http://localhost:8444/api/secom"
+  }
   ],
   "paths": {
     "/v2/searchService": {
@@ -28,16 +28,6 @@
               "schema": {
                 "$ref": "#/components/schemas/SearchFilterObject"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchFilterObject"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchFilterObject"
-              }
             }
           }
         },
@@ -45,17 +35,7 @@
           "200": {
             "description": "SearchResult",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResult"
                 }
@@ -76,115 +56,6 @@
           },
           "500": {
             "description": "\"Internal Server Error\""
-          }
-        }
-      }
-    },
-    "/api/g1191/v2/uploadResults/{transactionId}": {
-      "post": {
-        "tags": [
-          "ServiceRegistry"
-        ],
-        "parameters": [
-          {
-            "name": "transactionId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/UploadSearchResultObject"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Invalid MRN."
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/g1191/v2/updateService/{instanceId}": {
-      "put": {
-        "tags": [
-          "ServiceRegistry"
-        ],
-        "parameters": [
-          {
-            "name": "instanceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateServiceObject"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Validation checks failed. Message must include information of what checks failed."
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        }
-      }
-    },
-    "/v2/ping": {
-      "description": "The statusEndpoint API that must be supported by all services (non-vessels) registered in the MSR",
-      "get": {
-        "tags": [
-          "Service"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "timestamp"
-                  ],
-                  "properties": {
-                    "timestamp": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": true
-                }
-              }
-            }
           }
         }
       }
@@ -212,17 +83,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RetrieveResultObject"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RetrieveResultObject"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RetrieveResultObject"
+                "$ref": "#/components/schemas/RetriveResultObject"
               }
             }
           }
@@ -231,17 +92,7 @@
           "200": {
             "description": "SearchResult",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResult"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResult"
                 }
@@ -294,8 +145,10 @@
           },
           "envelopeRootCertificateThumbprint": {
             "minLength": 1,
+            "pattern": "^([A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}|([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}|([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2})$",
             "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format Format: SHA-1 or SHA-256 thumbprint.",
+            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90"
           },
           "envelopeSignatureTime": {
             "type": "string",
@@ -337,8 +190,56 @@
           },
           "envelopeRootCertificateThumbprint": {
             "minLength": 1,
+            "pattern": "^([A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}|([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}|([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2})$",
             "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format Format: SHA-1 or SHA-256 thumbprint.",
+            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90"
+          },
+          "envelopeSignatureTime": {
+            "type": "string",
+            "description": "Time stamp when the envelope is signed",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnvelopeSearchResultObject": {
+        "required": [
+          "envelopeRootCertificateThumbprint",
+          "envelopeSignatureCertificate",
+          "envelopeSignatureTime",
+          "transactionId"
+        ],
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "pattern": "^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$",
+            "type": "string",
+            "description": "The unique identifier of this search. This must be returned in the global search, \r\neven if the local search did not yield any results.",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "serviceInstance": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceInstanceObject"
+            },
+            "description": "List of Service Instances found",
+            "nullable": true
+          },
+          "envelopeSignatureCertificate": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
+          },
+          "envelopeRootCertificateThumbprint": {
+            "minLength": 1,
+            "pattern": "^([A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}|([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}|([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2})$",
+            "type": "string",
+            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format Format: SHA-1 or SHA-256 thumbprint.",
+            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90"
           },
           "envelopeSignatureTime": {
             "type": "string",
@@ -370,6 +271,25 @@
         ],
         "type": "string",
         "description": "Maritime Service (MS) types as defined by IMO/IALA/IMO-IHO harmonisation group."
+      },
+      "RetriveResultObject": {
+        "required": [
+          "envelope",
+          "envelopeSignature"
+        ],
+        "type": "object",
+        "properties": {
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeRetrieveResultObject"
+          },
+          "envelopeSignature": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information input retrieve result from previous search"
       },
       "SearchFilterObject": {
         "required": [
@@ -486,50 +406,6 @@
         },
         "additionalProperties": false
       },
-      "EnvelopeSearchResultObject": {
-        "required": [
-          "envelopeRootCertificateThumbprint",
-          "envelopeSignatureCertificate",
-          "envelopeSignatureTime",
-          "transactionId"
-        ],
-        "type": "object",
-        "properties": {
-          "transactionId": {
-            "pattern": "^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$",
-            "type": "string",
-            "description": "The unique identifier of this search. This must be returned in the global search, \r\neven if the local search did not yield any results.",
-            "format": "uuid",
-            "example": "550e8400-e29b-41d4-a716-446655440000"
-          },
-          "serviceInstance": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ServiceInstanceObject"
-            },
-            "description": "List of Service Instances found",
-            "nullable": true
-          },
-          "envelopeSignatureCertificate": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
-          },
-          "envelopeRootCertificateThumbprint": {
-            "minLength": 1,
-            "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
-          },
-          "envelopeSignatureTime": {
-            "type": "string",
-            "description": "Time stamp when the envelope is signed",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
       "SearchResult": {
         "required": [
           "envelope",
@@ -544,68 +420,6 @@
             "minLength": 1,
             "type": "string",
             "description": "The signature of the EnvelopeSearchResultObject in HEX format without whitespace or linebreaks."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Information output from Service Registry search"
-      },
-      "UploadSearchResultObject": {
-        "required": [
-          "envelope",
-          "envelopeSignature"
-        ],
-        "type": "object",
-        "properties": {
-          "envelope": {
-            "$ref": "#/components/schemas/EnvelopeUploadSearchResultObject"
-          },
-          "envelopeSignature": {
-            "minLength": 1,
-            "type": "string",
-            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
-          }
-        },
-        "additionalProperties": false
-      },
-      "EnvelopeUploadSearchResultObject": {
-        "required": [
-          "envelopeRootCertificateThumbprint",
-          "envelopeSignatureCertificate",
-          "envelopeSignatureTime",
-          "resultsEndpoint",
-          "serviceInstance"
-        ],
-        "type": "object",
-        "properties": {
-          "serviceInstance": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ServiceInstanceObject"
-            },
-            "description": "List of Service Instances found"
-          },
-          "envelopeSignatureCertificate": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "The public certificate(s) of the sender. Used to verify the envelope signature."
-          },
-          "envelopeRootCertificateThumbprint": {
-            "minLength": 1,
-            "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format"
-          },
-          "envelopeSignatureTime": {
-            "type": "string",
-            "description": "Time stamp when the envelope is signed",
-            "format": "date-time"
-          },
-          "resultsEndpoint": {
-            "type": "string",
-            "description": "Endpoint to which this result is meant for. Used to prevent replay attacks. Must contain endpointUri exactly as given in the search message without modifications.",
-            "format": "uri",
-            "example": "https://example.com/uploadResults/6890dbd3-ead0-413b-a0e3-b9aff091a692"
           }
         },
         "additionalProperties": false,
@@ -765,83 +579,11 @@
         "additionalProperties": false,
         "description": "Service Instance Object returned from Service Registry search"
       },
-      "ServiceInstanceStatus": {
-        "enum": [
-          "Provisional",
-          "Released",
-          "Deprecated",
-          "Deleted"
-        ],
-        "type": "string",
-        "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
-      },
-      "EnvelopeUpdateServiceObject": {
-        "type": "object",
-        "properties": {
-          "certificates": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "version": {
-            "type": "string",
-            "nullable": true
-          },
-          "endpointUri": {
-            "type": "string",
-            "nullable": true
-          },
-          "apiDoc": {
-            "type": "string",
-            "nullable": true
-          },
-          "statusEndpoint": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": true
-      },
-      "UpdateServiceObject": {
-        "required": [
-          "envelope",
-          "envelopeSignature"
-        ],
-        "type": "object",
-        "properties": {
-          "envelope": {
-            "$ref": "#/components/schemas/EnvelopeUpdateServiceObject"
-          },
-          "envelopeSignature": {
-            "minLength": 1,
-            "type": "string",
-            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
-          }
-        },
-        "additionalProperties": false
-      },
-      "RetrieveResultObject": {
-        "required": [
-          "envelope",
-          "envelopeSignature"
-        ],
-        "type": "object",
-        "properties": {
-          "envelope": {
-            "$ref": "#/components/schemas/EnvelopeRetrieveResultObject"
-          },
-          "envelopeSignature": {
-            "minLength": 1,
-            "type": "string",
-            "description": "The signature of the EnvelopeObject in HEX format without whitespace or linebreaks"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Information input retrieve result from previous search"
+       "ServiceInstanceStatus": {
+          "type": "integer",
+          "enum": [0, 1, 2, 3],
+          "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
       }
     }
-  },
-  "x-api-sha256": "B6FE818602C6547BA47072BE6A9103166A5F8FBF6B90CD50A2003DD3DCCCEC8C"
+  }
 }
