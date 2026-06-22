@@ -64,10 +64,10 @@ class PKIServices:
 
 
     def calculate_ca_certificate_fingerprint(self,
-                                             hash_algorithm : hashes.HashAlgorithm = SHA256()) -> tuple[str, str]:
+                                             hash_algorithm : hashes.HashAlgorithm = hashes.SHA384()) -> tuple[str, str]:
         """
             Opens the file provided and stores the content in 
-            root_ca. Also calculates the fingerprint of the certificate using SHA256
+            root_ca. Also calculates the fingerprint of the certificate using SHA384
 
         """
 

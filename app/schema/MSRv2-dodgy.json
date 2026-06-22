@@ -1,18 +1,18 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.1",
   "info": {
     "title": "SECOM Service discovery interface",
     "description": "Compliant with SECOM IEC 63173-2 v2.0",
     "contact": {
-      "name": "IEC TC80 WG17 Convenor Mr Kwangil Lee",
-      "url": "https://iec.ch/dyn/www/f?p=103:14:206311384503473::::FSP_ORG_ID:13085"
+      "name": "IEC TC80 WG17 - Common Maritime Data Structure (CMDS)",
+      "url": "https://www.iec.ch"
     },
     "version": "v2"
   },
   "servers": [
-  {
+    {
     "url": "http://localhost:8444/api/secom"
-  }
+    }
   ],
   "paths": {
     "/v2/searchService": {
@@ -52,10 +52,10 @@
             "description": "Not Authorized to request Information"
           },
           "404": {
-            "description": "\"Information not Found\""
+            "description": "Information not Found"
           },
           "500": {
-            "description": "\"Internal Server Error\""
+            "description": "Internal Server Error"
           }
         }
       }
@@ -145,10 +145,10 @@
           },
           "envelopeRootCertificateThumbprint": {
             "minLength": 1,
-            "pattern": "^([A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}|([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}|([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2})$",
+            "pattern": "^(0x)?[A-Fa-f0-9]{96}$",
             "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format Format: SHA-1 or SHA-256 thumbprint.",
-            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90"
+            "description": "Claimed SHA-384 Thumbprint for Signed Root Key (X.509 Certificate) in HEX format.",
+            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90AB12CD34EF56AB78"
           },
           "envelopeSignatureTime": {
             "type": "string",
@@ -190,10 +190,10 @@
           },
           "envelopeRootCertificateThumbprint": {
             "minLength": 1,
-            "pattern": "^([A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}|([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}|([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2})$",
+            "pattern": "^(0x)?[A-Fa-f0-9]{96}$",
             "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format Format: SHA-1 or SHA-256 thumbprint.",
-            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90"
+            "description": "Claimed SHA-384 Thumbprint for Signed Root Key (X.509 Certificate) in HEX format.",
+            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90AB12CD34EF56AB78"
           },
           "envelopeSignatureTime": {
             "type": "string",
@@ -236,10 +236,10 @@
           },
           "envelopeRootCertificateThumbprint": {
             "minLength": 1,
-            "pattern": "^([A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}|([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}|([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2})$",
+            "pattern": "^(0x)?[A-Fa-f0-9]{96}$",
             "type": "string",
-            "description": "Claimed Thumbprint for Signed Root Key (X.509 Certificate) SHA256 and base64 as format Format: SHA-1 or SHA-256 thumbprint.",
-            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90"
+            "description": "Claimed SHA-384 Thumbprint for Signed Root Key (X.509 Certificate) in HEX format.",
+            "example": "AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90AB12CD34EF56AB78CD90EF12AB34CD56EF78AB90AB12CD34EF56AB78"
           },
           "envelopeSignatureTime": {
             "type": "string",
@@ -251,22 +251,22 @@
       },
       "MaritimeServiceType": {
         "enum": [
-          "MS 1 – VTS Information Service (INS)",
-          "MS 2 – VTS Navigational Assistance Service (NAS)",
-          "MS 3 – Traffic Organization Service (TOS)",
-          "MS 4 – Port Support Service (PSS)",
-          "MS 5 – Maritime Safety Information (MSI) Service",
-          "MS 6 – Pilotage Service",
-          "MS 7 – Tug Service)",
-          "MS 8 – Vessel Shore Reporting",
-          "MS 9 – Telemedical Assistance Service (TMAS)",
-          "MS 10 – Maritime Assistance Service (MAS)",
-          "MS 11 – Nautical Chart Service",
-          "MS 12 – Nautical Publications Service",
-          "MS 13 – Ice Navigation Service",
-          "MS 14 – Meteorological Information Service",
-          "MS 15 – Real-Time Hydrographic & Environmental Information Service",
-          "MS 16 – Search and Rescue (SAR) Service",
+          "MS 1 - Vessel traffic service",
+          "MS 2 - Aids to Navigation Service",
+          "MS 3 - Reserved",
+          "MS 4 - Port Support Service",
+          "MS 5 - Maritime Safety Information Service",
+          "MS 6 - Pilotage Service",
+          "MS 7 - Tug Service",
+          "MS 8 - Vessel Shore Reporting",
+          "MS 9 - Telemedical Assistance Service",
+          "MS 10 - Maritime Assistance Service",
+          "MS 11 - Nautical Chart Service",
+          "MS 12 - Nautical Publications Service",
+          "MS 13 - Ice Navigation Service",
+          "MS 14 - Meteorological Information Service",
+          "MS 15 - Real-Time Hydrographic & Environmental Information Service",
+          "MS 16 - Search and Rescue Service",
           "OTHER"
         ],
         "type": "string",
@@ -341,7 +341,6 @@
           "dataProductType": {
             "type": "array",
             "items": {
-              "pattern": "^(S-?\\d{2,3}|RTZ|EPC|ASM)$",
               "type": "string"
             },
             "description": "A JSON array of strings that define the datatypes. \r\nS-100 products may be listed with either a hyphen present or not \r\n(e.g. S-421 or S421, which represent an equal dataProductType).",
@@ -466,7 +465,6 @@
           "dataProductType": {
             "type": "array",
             "items": {
-              "pattern": "^(S-?\\d{2,3}|RTZ|EPC|ASM)$",
               "type": "string"
             },
             "description": "A JSON array of strings that define the datatypes. \r\nS-100 products may be listed with either a hyphen present or not \r\n(e.g. S-421 or S421, which represent an equal dataProductType).",
@@ -579,10 +577,15 @@
         "additionalProperties": false,
         "description": "Service Instance Object returned from Service Registry search"
       },
-       "ServiceInstanceStatus": {
-          "type": "integer",
-          "enum": [0, 1, 2, 3],
-          "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
+      "ServiceInstanceStatus": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "Service Instance Status, One of Provisional(0), Released(1), Deprecated(2), Deleted(3)"
       }
     }
   }
