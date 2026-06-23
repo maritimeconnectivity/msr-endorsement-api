@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.1",
+  "openapi": "3.0.1",
   "info": {
     "title": "SECOM Service discovery interface",
     "description": "Compliant with SECOM IEC 63173-2 v2.0",
@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-    "url": "http://localhost:8444/api/secom"
+      "url": "http://localhost:8444/api/secom"
     }
   ],
   "paths": {
