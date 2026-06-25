@@ -3,6 +3,7 @@
 """
 import base64
 from datetime import datetime, timezone
+import hashlib
 import logging
 from hashlib import sha3_384, sha384
 from collections.abc import Callable
@@ -33,7 +34,7 @@ class PKIServices:
     public_key : str
     private_key : str
     private_key_password : str | None
-    digital_signature_reference : hashes.HashAlgorithm = sha384
+    digital_signature_reference : Callable = sha384
     protection_scheme = "SECOM"
 
     # Private variables
@@ -59,6 +60,7 @@ class PKIServices:
 
         self.root_ca_cert = base64.b64decode(root_cert)
         self.root_ca_fingerprint, self.root_ca_fingerprint_hash_algorithm = self.calculate_ca_certificate_fingerprint()
+        self.digital_signature_reference = self.determine_signature_hashfunc()
 
         logging.info(f"Temp folder: {self._tempfolder.name}")
 
@@ -75,6 +77,32 @@ class PKIServices:
         root_ca_fingerprint = x509_certificate.fingerprint(algorithm=hash_algorithm).hex()
         root_ca_fingerprint_hash_algorithm = hash_algorithm.name
         return root_ca_fingerprint, root_ca_fingerprint_hash_algorithm
+
+
+    def determine_signature_hashfunc(self) -> Callable:
+        """
+        Inspect the signing certificate and return the hashlib constructor that
+        matches its signature hash algorithm, so data is signed with the same
+        algorithm as the certificate itself. Falls back to SHA384 if the
+        algorithm cannot be determined (e.g. EdDSA certificates).
+        """
+        with open(self.public_key, "rb") as f:
+            certificate = load_pem_x509_certificate(f.read())
+
+        hash_algorithm = certificate.signature_hash_algorithm
+        if hash_algorithm is None:
+            logging.warning("Certificate has no signature hash algorithm; defaulting to SHA384")
+            return sha384
+
+        hashfunc_name = hash_algorithm.name.replace("-", "_")
+        hashfunc = getattr(hashlib, hashfunc_name, None)
+        if hashfunc is None:
+            logging.warning("Unsupported certificate hash algorithm '%s'; defaulting to SHA384",
+                            hash_algorithm.name)
+            return sha384
+
+        logging.info("Using data signature hash algorithm '%s' from certificate", hash_algorithm.name)
+        return hashfunc
 
 
     def get_data_signature(self, data : bytes) -> str:

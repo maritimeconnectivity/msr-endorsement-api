@@ -41,9 +41,10 @@ class ServiceInstance:
         self.status = result.get("status", 0)
         self.description = result.get("description", "")
 
-        data_product_types = result.get("dataProductTypes", [])
+        self.data_product_type = []
+        data_product_types = result.get("dataProductType", [])
         for data_product_type in data_product_types:
-            self.data_product_type.append(DataProductType[data_product_type])
+            self.data_product_type.append(DataProductType(data_product_type))
         self.organization_id = result.get("organizationId", "")
         self.endpoint_uri = result.get("endpointUri", "")
         self.endpoint_type = result.get("endpointType", "")
@@ -56,5 +57,5 @@ class ServiceInstance:
         self.imo = result.get("imo", 0)
         self.mmsi = result.get("mmsi", 0)
         self.certificates = result.get("certificates", [])
-        self.source_msr = result.get("sourceMSR", "")
+        self.source_msr = result.get("sourceMSRs", "")
         self.unsupported_params = result.get("unsupportedParams", [])
