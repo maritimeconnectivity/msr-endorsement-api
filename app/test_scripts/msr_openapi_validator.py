@@ -47,6 +47,9 @@ class MsrOpenApiValidator:
                                          private_cert=test_data.private_key,
                                          root_cert=test_data.root_certificate)
 
+        self.test_service_instance_id = test_data.test_service_instance_id
+        print(f"Inited test_service instandes: {self.test_service_instance_id}")
+
 
 
     def run_search_test(self, url : str, data: str, test_title : str, expected_code : int = 200) -> TestResult:
@@ -59,17 +62,29 @@ class MsrOpenApiValidator:
         :return: the result and either the search result or the exceptions
         """
         resp = requests.post(url,
-                             cert=self._pki_services.get_client_certificate(),
                              data=data,
                              headers=self.headers,
                              timeout=self.timeout)
 
+        try:
+            print(resp.json())
+        except ValueError:
+            print("Non-JSON response:")
+            print("Status:", resp.status_code)
+            print("Content-Type:", resp.headers.get("Content-Type"))
+            print("Body:", resp.text)
 
-        print(resp.json())
+        try:
+            response_body = resp.json()
+        except ValueError:
+            response_body = {
+                "serverResponse": resp.text
+            }
+
         if resp.status_code != expected_code:
             return TestResult(test_name=test_title,
                               test_success=False,
-                              full_response=resp.json() ,
+                              full_response=response_body ,
                               failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
         # Wrap the request objects with adapters
@@ -82,7 +97,7 @@ class MsrOpenApiValidator:
             self.open_api.validate_response(openapi_request, openapi_response)
             return TestResult(test_name=test_title,
                               test_success=True,
-                              full_response=resp.json(),
+                              full_response=response_body,
                               failure_reason="")
 
         except Exception as e:
@@ -91,45 +106,6 @@ class MsrOpenApiValidator:
                               test_success=False,
                               full_response={ "serverResponse" : resp.text },
                               failure_reason=str(e))
-
-
-    def run_unauthorised_search_test(self, url : str, data : str, test_title : str, expected_code : int) -> TestResult:
-        """
-        Try a valid query without a certificate
-        :param url: The URL to query
-        :param data: The faulty data structure to send
-        :param test_title: The title of the test
-        :param expected_code: The expected HTTP status code
-        :return: the result and either the search result or failure text
-        """
-        try:
-            resp = requests.post(url,
-                                 data=data,
-                                 headers=self.headers,
-                                 timeout=self.timeout)
-
-            if resp.status_code != expected_code:
-                return TestResult(test_name=test_title,
-                                  test_success=False,
-                                  full_response=resp.json(),
-                                  failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
-            else:
-                return TestResult(test_name=test_title,
-                                  test_success=resp.status_code == expected_code,
-                                  full_response=resp.json(),
-                                  failure_reason="")
-
-        except RequestException as e:
-            if resp is not None:
-                return TestResult(test_name=test_title,
-                                  test_success=resp.status_code == expected_code,
-                                  full_response={ "serverResponse" :  resp.text },
-                                  failure_reason=str(e))
-            else:
-                return TestResult(test_name=test_title,
-                                  test_success=False,
-                                  full_response={ "serverResponse" :  "" },
-                                  failure_reason=str(e))
 
     def run_retrieve_test(self, url : str, transaction_id: str, test_title : str, expected_code : int = 200) -> TestResult:
         """
@@ -149,9 +125,11 @@ class MsrOpenApiValidator:
             )
             retrieve_request.envelope_signature = signature
 
+
+
+            print("Contacting URL: ", url)
             resp = requests.post(
                 url,
-                cert=self._pki_services.get_client_certificate(),
                 data=json.dumps(retrieve_request.to_secom_dict()),
                 headers=self.headers,
                 timeout=self.timeout
@@ -197,7 +175,7 @@ class MsrOpenApiValidator:
         search_filter = self.get_new_search_filter()
 
         search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResult"
+        retrieve_results_url = self.url + "api/secom/v2/retrieveResult/"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -205,9 +183,34 @@ class MsrOpenApiValidator:
         # Test an empty search
         result = self.run_search_test(search_service_url,
                                                  json.dumps(search_filter.to_secom_dict()),
-                                                 "Test empty search")
+                                                 "Test empty search", 400)
 
         test_results.results.append(result)
+
+
+        # Search for a provisional service. This is necessary since for security reasons an empty
+        # query shall not return all results (DDOS vulnerability)
+
+        search_filter = self.get_new_search_filter()
+
+
+        # Test instance defined through the API
+        search_filter.envelope.query.instance_id = self.test_service_instance_id
+
+        print(f"RUN TEST FOR INSTANCE: {self.test_service_instance_id}")
+
+
+        search_filter.envelope, signature = self._pki_services.sign_envelope_object(
+            search_filter.envelope)
+        search_filter.envelope_signature = signature
+        result = self.run_search_test(search_service_url,
+                                      json.dumps(search_filter.to_secom_dict()),
+                                      "Test search for instance", 200)
+
+
+        print(f"RESULT: {result}")
+        test_results.results.append(result)
+
 
         if result.test_success:
             search_result = SecomSearchResult(result.full_response)
@@ -244,10 +247,14 @@ class MsrOpenApiValidator:
 
                 test_results.results.append(instant_result)
 
-                # Test searching for a service instance by status
+                # Test searching for a service instance by status and name
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
+
                 search_filter.envelope.query.status = service_instance.status
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+                print("-----USING STATUS ", str(service_instance.status) )
+
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
@@ -279,6 +286,8 @@ class MsrOpenApiValidator:
 
                 search_filter.envelope.geometry = cleaned_geo
 
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
@@ -300,35 +309,46 @@ class MsrOpenApiValidator:
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
 
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+
                 # Generate the envelope signature
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
 
-                # Change the query so the signature is incorrect
-                search_filter.envelope.query.name = envelope.service_instance[0].name
+                # Change the signature such that it becomes malformed
+                search_filter.envelope_signature = search_filter.envelope_signature[:-1]
 
                 bad_signature_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
 
                 test_results.results.append(bad_signature_result)
 
-                # Test unauthorised access to the search service
+                # Test failure in authentication when conducting a search yields 401 response
                 test_name = "Test unauthorised search generates a 401 response"
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
 
+                search_filter.envelope.query.instance_id = service_instance.instance_id
+
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
-                unauth_result = self.run_unauthorised_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 401)
+
+                # Now alter the envelope so signature validation should fail on server side
+                search_filter.envelope.query.instance_id = "GIBBERISH"
+
+                # A
+
+                auth_fail_result = self.run_search_test(search_service_url, json.dumps(
+                    search_filter.to_secom_dict()), test_name, 401)
                 
-                test_results.results.append(unauth_result)
+                test_results.results.append(auth_fail_result)
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
 
                 # Test invalid status search result in a 400
                 test_name = "Test invalid status search generates a 400 response"
-                search_filter.envelope.query.status = "!!INVALID!!"
+                search_filter.envelope.query.status = 5
                 search_filter.envelope.local_only = False
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
@@ -384,6 +404,7 @@ class MsrOpenApiValidator:
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
                 search_filter.envelope.local_only = False
+                search_filter.envelope.query.instance_id = self.test_service_instance_id
 
                 search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
                 search_filter.envelope_signature = signature
@@ -405,19 +426,20 @@ class MsrOpenApiValidator:
 
                     # First attempt to retrieve the result
                     sleep(3)
-                    retrieve_result_3s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    retrieve_result_3s = self.run_retrieve_test(retrieve_results_url + transaction_id,
+                                                                str(transaction_id), test_name, 200)
                     test_results.results.append(retrieve_result_3s)
 
                     # Second attempt to retrieve the result
                     sleep(3)
                     test_name = f"Wait 6 seconds then retrieve results for transaction id: {transaction_id}"
-                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
                     test_results.results.append(retrieve_result_6s)
 
                     # Final attempt to retrieve the result
                     sleep(4)
                     test_name = f"Wait 10 seconds then retrieve results for transaction id: {transaction_id}"
-                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url, str(transaction_id), test_name, 200)
+                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
                     test_results.results.append(retrieve_result_10s)
 
                 else:
@@ -431,7 +453,8 @@ class MsrOpenApiValidator:
 
                 test_name = "Test retrieve results for random transaction id generates a 404 response"
                 uuid = uuid4()
-                invalid_transation_id_result = self.run_retrieve_test(retrieve_results_url, str(uuid), test_name, 404)
+                invalid_transation_id_result = self.run_retrieve_test(retrieve_results_url + str(uuid),
+                                                                      str(uuid), test_name, 404)
 
                 test_results.results.append(invalid_transation_id_result)
 
@@ -444,6 +467,21 @@ class MsrOpenApiValidator:
                                   failure_reason=f"Provide at least one instance to the MSR to "
                                                  f"test full functionality",))
                 test_results.results.append(err_no_instance)
+
+        else:
+            print(f"Failed to validate MSR against test instance {self.test_service_instance_id}:")
+            failRes = TestResult(
+                test_name="PROVISIONAL INSTANCE SEARCH",
+                test_success=False,
+                full_response={
+                    "test_skipped": "No provisional instance found"
+                },
+                failure_reason=(
+                    "CANNOT VALIDATE MSR WHEN A VALID RESULT FROM A PROVISIONAL INSTANCE COULD "
+                    "NOT BE PARSED"
+                )
+            )
+            test_results.results.append(failRes)
 
         self._pki_services.cleanup()
 

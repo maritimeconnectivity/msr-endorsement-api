@@ -9,3 +9,4 @@ class TestData(BaseModel):
     certificate : str
     private_key : str
     root_certificate : str
+    test_service_instance_id : str
