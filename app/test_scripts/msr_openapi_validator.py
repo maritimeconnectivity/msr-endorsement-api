@@ -7,7 +7,7 @@ import requests
 from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.exceptions import InvalidData
-from requests import RequestException
+from requests import RequestException, Request
 from shapely import wkt
 
 from app.model.secom.v2.secom_envelope_retrieve_result import SecomEnvelopeRetrieveResult
@@ -39,9 +39,7 @@ class MsrOpenApiValidator:
 
     def __init__(self, test_data : TestData, api_path : str = "./app/schema/MSRv2.json"):
         self.open_api = OpenAPI.from_file_path(api_path)
-        self.url = test_data.test_url
-        if self.url[-1] != "/":
-            self.url = self.url + "/"
+        self.url = test_data.test_url + '/api/secom'
 
         self._pki_services = PKIServices(public_cert=test_data.certificate,
                                          private_cert=test_data.private_key,
@@ -66,6 +64,9 @@ class MsrOpenApiValidator:
                              headers=self.headers,
                              timeout=self.timeout)
 
+        print("POSTing to:", url)
+        print("Headers:", self.headers)
+        print("Body:", data)
         try:
             print(resp.json())
         except ValueError:
@@ -88,7 +89,7 @@ class MsrOpenApiValidator:
                               failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
         # Wrap the request objects with adapters
-        openapi_request = RequestsOpenAPIRequest(resp.request)
+        openapi_request = self.normalize_openapi_request(resp)
         openapi_response = RequestsOpenAPIResponse(resp)
 
         try:
@@ -142,7 +143,7 @@ class MsrOpenApiValidator:
                                   failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
             # Wrap the request objects with adapters
-            openapi_request = RequestsOpenAPIRequest(resp.request)
+            openapi_request = self.normalize_openapi_request(resp)
             openapi_response = RequestsOpenAPIResponse(resp)
 
             # Validate + unmarshal the response against the request
@@ -174,8 +175,8 @@ class MsrOpenApiValidator:
 
         search_filter = self.get_new_search_filter()
 
-        search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResult/"
+        search_service_url = self.url + "/v2/searchService"
+        retrieve_results_url = self.url + "/v2/retrieveResult/"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -486,6 +487,22 @@ class MsrOpenApiValidator:
         self._pki_services.cleanup()
 
         return test_results
+
+    @staticmethod
+    def normalize_openapi_request(resp):
+        normalized_url = resp.request.url.replace(
+            "/api/secom/v2/",
+            "/v2/"
+        )
+
+        prepared = Request(
+            method=resp.request.method,
+            url=normalized_url,
+            headers=resp.request.headers,
+            data=resp.request.body,
+        ).prepare()
+
+        return RequestsOpenAPIRequest(prepared)
 
     @staticmethod
     def get_new_search_filter():
