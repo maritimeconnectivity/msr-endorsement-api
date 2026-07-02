@@ -44,7 +44,11 @@ class ServiceInstance:
         self.data_product_type = []
         data_product_types = result.get("dataProductType", [])
         for data_product_type in data_product_types:
-            self.data_product_type.append(DataProductType(data_product_type))
+            # Normalize API value "S-124" -> "S124 to avoid breaking"
+            if isinstance(data_product_type, str):
+                data_product_type = data_product_type.replace("-", "")
+
+            self.data_product_type.append(DataProductType[data_product_type])
         self.organization_id = result.get("organizationId", "")
         self.endpoint_uri = result.get("endpointUri", "")
         self.endpoint_type = result.get("endpointType", "")
