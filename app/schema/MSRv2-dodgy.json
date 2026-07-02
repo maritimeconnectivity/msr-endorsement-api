@@ -9,11 +9,6 @@
     },
     "version": "v2"
   },
-  "servers": [
-    {
-      "url": "http://localhost:8444/api/secom"
-    }
-  ],
   "paths": {
     "/v2/searchService": {
       "post": {
