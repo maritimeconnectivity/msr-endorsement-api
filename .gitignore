@@ -1,2 +1,4 @@
 /certs/
+/build/
+/dist/
 /.env/
