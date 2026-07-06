@@ -18,7 +18,7 @@ from app.model.test_data import TestData
 from app.model.test_result import TestResult
 from app.model.test_results import TestResults
 from app.services.pki_services import PKIServices
-
+from urllib.parse import urlsplit
 
 class MsrOpenApiValidator:
 
@@ -30,6 +30,7 @@ class MsrOpenApiValidator:
     timeout : int = 5
     open_api : OpenAPI
     url : str
+    path : str
 
     # Internal variables
     _pki_services : PKIServices
@@ -38,18 +39,35 @@ class MsrOpenApiValidator:
     def __init__(self, test_data : TestData, api_path : str = "./app/schema/MSRv2.json",
                  progress_callback : Callable[[TestResult], None] | None = None):
         self._progress_callback = progress_callback
-        self.open_api = OpenAPI.from_file_path(api_path)
-        self.url = test_data.test_url
-        if self.url[-1] != "/":
-            self.url = self.url + "/"
 
+        # The spec declares paths relative to "/v2/..." while the live service is
+        # served under "/api/secom/v2/...". Only the base URL differs, so we inject
+        # a matching "servers" entry into the spec *in memory* (the MSRv2.json file
+        # is left untouched). A relative server URL keeps this host-independent, so
+        # openapi-core strips "/api/secom" before matching "/v2/searchService".
+        with open(api_path, encoding="utf-8") as spec_file:
+            spec_dict = json.load(spec_file)
+
+        # Split the test URL between the base and the path
+        url_parts = urlsplit(test_data.test_url)
+        self.url = f"{url_parts.scheme}://{url_parts.netloc}/"
+        self.path = url_parts.path
+
+        # If a path has been specified, then add it to the OpenAPI server
+        if self.path:
+            spec_dict["servers"] = [{"url": self.path}]
+
+        # And load the OpenAPI specification
+        self.open_api = OpenAPI.from_dict(spec_dict)
+
+        # Finally load the PKI service
         self._pki_services = PKIServices(public_cert=test_data.certificate,
                                          private_cert=test_data.private_key,
                                          root_cert=test_data.root_certificate)
 
+        # And setup the test service instance
         self.test_service_instance_id = test_data.test_service_instance_id
         print(f"Initiated test_service instances: {self.test_service_instance_id}")
-
 
 
     def run_search_test(self, url : str, data: str, test_title : str, expected_code : int = 200) -> TestResult:
@@ -106,6 +124,7 @@ class MsrOpenApiValidator:
                               test_success=False,
                               full_response={ "serverResponse" : resp.text },
                               failure_reason=str(e))
+
 
     def run_retrieve_test(self, url : str, transaction_id: str, test_title : str, expected_code : int = 200) -> TestResult:
         """
@@ -173,6 +192,7 @@ class MsrOpenApiValidator:
             self._progress_callback(result)
         return result
 
+
     def validate_msr(self):
         """
         Validate the MSR with test queries
@@ -218,7 +238,6 @@ class MsrOpenApiValidator:
 
         print(f"RESULT: {result}")
         self._record(test_results, result)
-
 
         if result.test_success:
             search_result = SecomSearchResult(result.full_response)
@@ -494,6 +513,7 @@ class MsrOpenApiValidator:
         self._pki_services.cleanup()
 
         return test_results
+
 
     @staticmethod
     def get_new_search_filter():

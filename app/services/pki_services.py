@@ -66,11 +66,10 @@ class PKIServices:
 
 
     def calculate_ca_certificate_fingerprint(self,
-                                             hash_algorithm : hashes.HashAlgorithm = hashes.SHA384()) -> tuple[str, str]:
+                                             hash_algorithm : hashes.HashAlgorithm = hashes.SHA256()) -> tuple[str, str]:
         """
-            Opens the file provided and stores the content in 
-            root_ca. Also calculates the fingerprint of the certificate using SHA384
-
+        Opens the file provided and stores the content in
+        root_ca. Also calculates the fingerprint of the certificate using SHA256
         """
 
         x509_certificate = load_pem_x509_certificate(self.root_ca_cert)
@@ -128,14 +127,19 @@ class PKIServices:
         # Populate the envelope
         envelope.envelope_root_certificate_thumbprint = self.root_ca_fingerprint
         envelope.envelope_signature_certificate = []
-        with open(self.public_key, "r") as f:
-            envelope.envelope_signature_certificate.append(f.read().replace("\n", "")
-                                                           .replace("-----BEGIN CERTIFICATE-----", "")
-                                                           .replace("-----END CERTIFICATE-----", ""))
+        with (open(self.public_key, "r") as f):
+            envelope.envelope_signature_certificate = f.read() \
+                .replace("\r", "") \
+                .replace("\n", "") \
+                .replace("-----END CERTIFICATE----------BEGIN CERTIFICATE-----", "\n") \
+                .replace("-----BEGIN CERTIFICATE-----", "") \
+                .replace("-----END CERTIFICATE-----", "") \
+                .splitlines()
 
+        # Stamp the signature time
         envelope.envelope_signature_time = datetime.now(timezone.utc).replace(microsecond=0)
 
-        # Get the signature and the signature reference
+        # Get the signature
         signature = self.get_data_signature(envelope.payload_to_bytes())
 
         return envelope, signature

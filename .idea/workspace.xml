@@ -4,12 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Added tests">
-      <change afterPath="$PROJECT_DIR$/app/resources/mcp.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/msr-endorser.spec" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Adding the pyinstaller configuration">
+      <change beforePath="$PROJECT_DIR$/.idea/ServiceRegistryValidator.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ServiceRegistryValidator.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/test_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/test_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schema/MSRv2.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/schema/MSRv2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/pki_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/pki_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +78,7 @@
     "HTTP Request.generated-requests | #1.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.app.executor": "Debug",
-    "Python.gui.executor": "Run",
+    "Python.gui.executor": "Debug",
     "Python.main.executor": "Run",
     "Python.msr_openapi_validator.executor": "Run",
     "Python.secom_search_filter.executor": "Run",
@@ -91,7 +94,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -124,8 +127,8 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
@@ -314,7 +317,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782368729696</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Adding the pyinstaller configuration">
+      <option name="closed" value="true" />
+      <created>1783081754870</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1783081754870</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -332,7 +343,8 @@
     <MESSAGE value="Corrected signature generation method" />
     <MESSAGE value="Added gui" />
     <MESSAGE value="Added tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added tests" />
+    <MESSAGE value="Adding the pyinstaller configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adding the pyinstaller configuration" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$main.coverage" NAME="main Coverage Results" MODIFIED="1767630895515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
