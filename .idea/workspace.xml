@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Adding the pyinstaller configuration">
-      <change beforePath="$PROJECT_DIR$/.idea/ServiceRegistryValidator.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ServiceRegistryValidator.iml" afterDir="false" />
+    <list default="true" id="3f62f4b5-946e-476a-9e0a-d3aa53009673" name="Changes" comment="Making the configuration a little more flexible">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/secom/v2/secom_envelope.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/model/test_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/test_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schema/MSRv2.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/schema/MSRv2.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/pki_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/pki_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/test_scripts/msr_openapi_validator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -325,7 +319,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783081754870</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Making the configuration a little more flexible">
+      <option name="closed" value="true" />
+      <created>1783331290194</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1783331290195</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -344,7 +346,8 @@
     <MESSAGE value="Added gui" />
     <MESSAGE value="Added tests" />
     <MESSAGE value="Adding the pyinstaller configuration" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding the pyinstaller configuration" />
+    <MESSAGE value="Making the configuration a little more flexible" />
+    <option name="LAST_COMMIT_MESSAGE" value="Making the configuration a little more flexible" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ServiceRegistryValidator$main.coverage" NAME="main Coverage Results" MODIFIED="1767630895515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
