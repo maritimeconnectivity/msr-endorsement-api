@@ -1,18 +1,17 @@
 import json
+from collections.abc import Callable
 from time import sleep
 from uuid import uuid4
 
 import requests
-
 from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.exceptions import InvalidData
-from requests import RequestException
+from requests import RequestException, Request
 from shapely import wkt
 
 from app.model.secom.v2.secom_envelope_retrieve_result import SecomEnvelopeRetrieveResult
 from app.model.secom.v2.secom_envelope_search_filter import SecomEnvelopeSearchFilter
-from app.model.secom.v2.secom_envelope_search_result import SecomEnvelopeSearchResult
 from app.model.secom.v2.secom_retrieve_result import SecomRetrieveResult
 from app.model.secom.v2.secom_search_filter import SecomSearchFilter
 from app.model.secom.v2.secom_search_parameters import SecomSearchParameters
@@ -36,19 +35,20 @@ class MsrOpenApiValidator:
 
     # Internal variables
     _pki_services : PKIServices
+    _progress_callback : Callable[[TestResult], None] | None
 
-    def __init__(self, test_data : TestData, api_path : str = "./app/schema/MSRv2.json"):
+    def __init__(self, test_data : TestData, api_path : str = "./app/schema/MSRv2.json",
+                 progress_callback : Callable[[TestResult], None] | None = None):
+        self._progress_callback = progress_callback
         self.open_api = OpenAPI.from_file_path(api_path)
-        self.url = test_data.test_url
-        if self.url[-1] != "/":
-            self.url = self.url + "/"
+        self.url = test_data.test_url + '/api/secom'
 
         self._pki_services = PKIServices(public_cert=test_data.certificate,
                                          private_cert=test_data.private_key,
                                          root_cert=test_data.root_certificate)
 
         self.test_service_instance_id = test_data.test_service_instance_id
-        print(f"Inited test_service instandes: {self.test_service_instance_id}")
+        print(f"Initiated test_service instances: {self.test_service_instance_id}")
 
 
 
@@ -88,7 +88,7 @@ class MsrOpenApiValidator:
                               failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
         # Wrap the request objects with adapters
-        openapi_request = RequestsOpenAPIRequest(resp.request)
+        openapi_request = self.normalize_openapi_request(resp)
         openapi_response = RequestsOpenAPIResponse(resp)
 
         try:
@@ -135,6 +135,7 @@ class MsrOpenApiValidator:
                 timeout=self.timeout
             )
 
+
             if resp.status_code != expected_code:
                 return TestResult(test_name=test_title,
                                   test_success=False,
@@ -142,7 +143,7 @@ class MsrOpenApiValidator:
                                   failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
             # Wrap the request objects with adapters
-            openapi_request = RequestsOpenAPIRequest(resp.request)
+            openapi_request = self.normalize_openapi_request(resp)
             openapi_response = RequestsOpenAPIResponse(resp)
 
             # Validate + unmarshal the response against the request
@@ -165,6 +166,13 @@ class MsrOpenApiValidator:
                               failure_reason=str(e))
 
 
+    def _record(self, test_results: TestResults, result: TestResult) -> TestResult:
+        """Append result to the collection and notify the progress callback."""
+        list.append(test_results.results, result)
+        if self._progress_callback is not None:
+            self._progress_callback(result)
+        return result
+
     def validate_msr(self):
         """
         Validate the MSR with test queries
@@ -174,8 +182,8 @@ class MsrOpenApiValidator:
 
         search_filter = self.get_new_search_filter()
 
-        search_service_url = self.url + "api/secom/v2/searchService"
-        retrieve_results_url = self.url + "api/secom/v2/retrieveResult/"
+        search_service_url = self.url + "/v2/searchService"
+        retrieve_results_url = self.url + "/v2/retrieveResult/"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -185,7 +193,7 @@ class MsrOpenApiValidator:
                                                  json.dumps(search_filter.to_secom_dict()),
                                                  "Test empty search", 400)
 
-        test_results.results.append(result)
+        self._record(test_results, result)
 
 
         # Search for a provisional service. This is necessary since for security reasons an empty
@@ -209,7 +217,7 @@ class MsrOpenApiValidator:
 
 
         print(f"RESULT: {result}")
-        test_results.results.append(result)
+        self._record(test_results, result)
 
 
         if result.test_success:
@@ -245,7 +253,7 @@ class MsrOpenApiValidator:
                             instant_result.failure_reason = f"Test failed: {result.instance_id} not found in {result.instance_id}"
                             break
 
-                test_results.results.append(instant_result)
+                self._record(test_results, instant_result)
 
                 # Test searching for a service instance by status and name
                 # Reset the search filter
@@ -271,7 +279,7 @@ class MsrOpenApiValidator:
                             status_result.failure_reason = f"Test failed: {result.status} not found in {search_result.service_instance}"
                             break
 
-                test_results.results.append(status_result)
+                self._record(test_results, status_result)
 
                 # Test searching for a service instance by geometry
                 # Reset the search filter
@@ -295,7 +303,7 @@ class MsrOpenApiValidator:
                              f"geometry")
                 geometry_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name)
 
-                test_results.results.append(geometry_result)
+                self._record(test_results, geometry_result)
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
@@ -320,7 +328,7 @@ class MsrOpenApiValidator:
 
                 bad_signature_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
 
-                test_results.results.append(bad_signature_result)
+                self._record(test_results, bad_signature_result)
 
                 # Test failure in authentication when conducting a search yields 401 response
                 test_name = "Test unauthorised search generates a 401 response"
@@ -341,7 +349,7 @@ class MsrOpenApiValidator:
                 auth_fail_result = self.run_search_test(search_service_url, json.dumps(
                     search_filter.to_secom_dict()), test_name, 401)
                 
-                test_results.results.append(auth_fail_result)
+                self._record(test_results, auth_fail_result)
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
@@ -356,7 +364,7 @@ class MsrOpenApiValidator:
 
                 invalid_search_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
 
-                test_results.results.append(invalid_search_result)
+                self._record(test_results, invalid_search_result)
 
                 # Reset the search filter
                 search_filter = self.get_new_search_filter()
@@ -373,7 +381,7 @@ class MsrOpenApiValidator:
 
                 empty_search_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 404)
 
-                test_results.results.append(empty_search_result)
+                self._record(test_results, empty_search_result)
 
                 # Reset the search filter
                 # Test searching for a service instance by imo number alone results in a 400
@@ -385,7 +393,7 @@ class MsrOpenApiValidator:
 
                 test_name = "Test search by imo number alone results in a 400 response"
                 imo_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name, 400)
-                test_results.results.append(imo_result)
+                self._record(test_results, imo_result)
 
                 # Reset the search filter
                 # Test searching for a service instance by mmsi number alone results in a 400
@@ -398,7 +406,7 @@ class MsrOpenApiValidator:
                 test_name = "Test search by mmsi number alone results in a 400 response"
                 mmsi_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()),
                                                   test_name, 400)
-                test_results.results.append(mmsi_result)
+                self._record(test_results, mmsi_result)
 
                 # Start a global search
                 # Reset the search filter
@@ -413,7 +421,7 @@ class MsrOpenApiValidator:
 
                 global_search_test_result = self.run_search_test(search_service_url, json.dumps(search_filter.to_secom_dict()), test_name)
 
-                test_results.results.append(global_search_test_result)
+                self._record(test_results, global_search_test_result)
 
                 global_search_result = SecomSearchResult(global_search_test_result.full_response)
                 envelope = global_search_result.envelope
@@ -428,19 +436,19 @@ class MsrOpenApiValidator:
                     sleep(3)
                     retrieve_result_3s = self.run_retrieve_test(retrieve_results_url + transaction_id,
                                                                 str(transaction_id), test_name, 200)
-                    test_results.results.append(retrieve_result_3s)
+                    self._record(test_results, retrieve_result_3s)
 
                     # Second attempt to retrieve the result
                     sleep(3)
                     test_name = f"Wait 6 seconds then retrieve results for transaction id: {transaction_id}"
                     retrieve_result_6s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
-                    test_results.results.append(retrieve_result_6s)
+                    self._record(test_results, retrieve_result_6s)
 
                     # Final attempt to retrieve the result
                     sleep(4)
                     test_name = f"Wait 10 seconds then retrieve results for transaction id: {transaction_id}"
                     retrieve_result_10s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
-                    test_results.results.append(retrieve_result_10s)
+                    self._record(test_results, retrieve_result_10s)
 
                 else:
                     retrieve_result_3s = TestResult(
@@ -449,14 +457,14 @@ class MsrOpenApiValidator:
                         full_response={ "test_skipped" : "No transaction id found in global search result" },
                         failure_reason="No transaction id found in global search result"
                     )
-                    test_results.results.append(retrieve_result_3s)
+                    self._record(test_results, retrieve_result_3s)
 
                 test_name = "Test retrieve results for random transaction id generates a 404 response"
                 uuid = uuid4()
                 invalid_transation_id_result = self.run_retrieve_test(retrieve_results_url + str(uuid),
                                                                       str(uuid), test_name, 404)
 
-                test_results.results.append(invalid_transation_id_result)
+                self._record(test_results, invalid_transation_id_result)
 
             # Return an error that is visible in Postman, when the MSR has zero instances
             else:
@@ -466,7 +474,7 @@ class MsrOpenApiValidator:
                                   test_success=False,
                                   failure_reason=f"Provide at least one instance to the MSR to "
                                                  f"test full functionality",))
-                test_results.results.append(err_no_instance)
+                self._record(test_results, err_no_instance)
 
         else:
             print(f"Failed to validate MSR against test instance {self.test_service_instance_id}:")
@@ -481,11 +489,27 @@ class MsrOpenApiValidator:
                     "NOT BE PARSED"
                 )
             )
-            test_results.results.append(failRes)
+            self._record(test_results, failRes)
 
         self._pki_services.cleanup()
 
         return test_results
+
+    @staticmethod
+    def normalize_openapi_request(resp):
+        normalized_url = resp.request.url.replace(
+            "/api/secom/v2/",
+            "/v2/"
+        )
+
+        prepared = Request(
+            method=resp.request.method,
+            url=normalized_url,
+            headers=resp.request.headers,
+            data=resp.request.body,
+        ).prepare()
+
+        return RequestsOpenAPIRequest(prepared)
 
     @staticmethod
     def get_new_search_filter():
