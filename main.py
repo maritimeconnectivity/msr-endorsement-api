@@ -33,6 +33,6 @@ async def test_service_registry(data : TestData) -> TestResults:
     """
 
     logging.info(f"Test URL: {data.test_url}")
-    validate_msr = MsrOpenApiValidator(data, "./app/schema/MSRv2-dodgy.json")
+    validate_msr = MsrOpenApiValidator(data, "./app/schema/MSRv2.json")
 
     return validate_msr.validate_msr()
