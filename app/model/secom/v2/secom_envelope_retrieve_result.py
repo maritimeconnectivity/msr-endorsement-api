@@ -34,7 +34,7 @@ class SecomEnvelopeRetrieveResult(SecomEnvelope):
         Return the envelope as bytes for signature generation
         """
         payload = ""
-        payload += self.transaction_id
+        payload += str(self.transaction_id).lower()
         payload += "."
         payload += super().payload_to_bytes().decode()
 

@@ -75,3 +75,10 @@ class TestSecomEnvelopeSearchFilterPayloadToBytes:
     def test_certificate_thumbprint_appears_in_payload(self):
         f = _make_filter()
         assert b"abc123" in f.payload_to_bytes()
+
+    def test_certificates_are_comma_separated_without_brackets(self):
+        f = _make_filter()
+        f.envelope_signature_certificate = ["CERT1", "CERT2"]
+        payload = f.payload_to_bytes().decode()
+        assert ".CERT1,CERT2." in payload
+        assert "[" not in payload

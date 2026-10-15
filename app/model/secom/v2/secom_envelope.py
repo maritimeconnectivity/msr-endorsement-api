@@ -2,7 +2,8 @@
     Secom Envelope object
 """
 from datetime import datetime, timezone
-from app.model.secom.secom_constants import SecomConstants as sc
+
+from app.model.secom.secom_signature_utils import encode_array
 
 class SecomEnvelope:
 
@@ -11,7 +12,12 @@ class SecomEnvelope:
     envelope_signature_time : datetime = datetime.now(timezone.utc).replace(microsecond=0)
 
     def payload_to_bytes(self) -> bytes:
-        cert_payload = "[" + ", ".join(self.envelope_signature_certificate) + "]"
+        """
+        Return the envelope as bytes
+        :return: The contents of the envelope as bytes
+        """
+        # The certificates are already Base64-encoded, so only join them with a comma
+        cert_payload = encode_array(self.envelope_signature_certificate, already_base64=True)
 
         payload = ""
         payload += cert_payload + "."

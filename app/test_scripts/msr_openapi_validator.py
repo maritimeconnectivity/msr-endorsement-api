@@ -6,8 +6,6 @@ from uuid import uuid4
 import requests
 from openapi_core import OpenAPI
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
-from openapi_core.validation.response.exceptions import InvalidData
-from requests import RequestException, Request
 from shapely import wkt
 
 from app.model.secom.v2.secom_envelope_retrieve_result import SecomEnvelopeRetrieveResult
@@ -20,7 +18,7 @@ from app.model.test_data import TestData
 from app.model.test_result import TestResult
 from app.model.test_results import TestResults
 from app.services.pki_services import PKIServices
-
+from urllib.parse import urlsplit
 
 class MsrOpenApiValidator:
 
@@ -32,6 +30,7 @@ class MsrOpenApiValidator:
     timeout : int = 5
     open_api : OpenAPI
     url : str
+    path : str
 
     # Internal variables
     _pki_services : PKIServices
@@ -40,16 +39,38 @@ class MsrOpenApiValidator:
     def __init__(self, test_data : TestData, api_path : str = "./app/schema/MSRv2.json",
                  progress_callback : Callable[[TestResult], None] | None = None):
         self._progress_callback = progress_callback
-        self.open_api = OpenAPI.from_file_path(api_path)
-        self.url = test_data.test_url + '/api/secom'
 
+        # The spec declares paths relative to "/v2/..." while the live service is
+        # served under "/api/secom/v2/...". Only the base URL differs, so we inject
+        # a matching "servers" entry into the spec *in memory* (the MSRv2.json file
+        # is left untouched). A relative server URL keeps this host-independent, so
+        # openapi-core strips "/api/secom" before matching "/v2/searchService".
+        with open(api_path, encoding="utf-8") as spec_file:
+            spec_dict = json.load(spec_file)
+
+        # Split the test URL between the host and the base path (e.g. "/api/secom").
+        # Tolerate a trailing slash and a trailing "/v2", since the spec adds that.
+        url_parts = urlsplit(test_data.test_url)
+        self.path = url_parts.path.rstrip("/")
+
+        # The base URL (always with a trailing slash) onto which "v2/<operation>" is appended
+        self.url = f"{url_parts.scheme}://{url_parts.netloc}{self.path}/"
+
+        # Register the base path as the OpenAPI server so that openapi-core strips
+        # it before matching the "/v2/..." paths of the spec
+        spec_dict["servers"] = [{"url": self.path or "/"}]
+
+        # And load the OpenAPI specification
+        self.open_api = OpenAPI.from_dict(spec_dict)
+
+        # Finally load the PKI service
         self._pki_services = PKIServices(public_cert=test_data.certificate,
                                          private_cert=test_data.private_key,
                                          root_cert=test_data.root_certificate)
 
+        # And setup the test service instance
         self.test_service_instance_id = test_data.test_service_instance_id
         print(f"Initiated test_service instances: {self.test_service_instance_id}")
-
 
 
     def run_search_test(self, url : str, data: str, test_title : str, expected_code : int = 200) -> TestResult:
@@ -88,7 +109,7 @@ class MsrOpenApiValidator:
                               failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
         # Wrap the request objects with adapters
-        openapi_request = self.normalize_openapi_request(resp)
+        openapi_request = RequestsOpenAPIRequest(resp.request)
         openapi_response = RequestsOpenAPIResponse(resp)
 
         try:
@@ -106,6 +127,7 @@ class MsrOpenApiValidator:
                               test_success=False,
                               full_response={ "serverResponse" : resp.text },
                               failure_reason=str(e))
+
 
     def run_retrieve_test(self, url : str, transaction_id: str, test_title : str, expected_code : int = 200) -> TestResult:
         """
@@ -143,7 +165,7 @@ class MsrOpenApiValidator:
                                   failure_reason=f"Expected status code {expected_code}, got {resp.status_code}")
 
             # Wrap the request objects with adapters
-            openapi_request = self.normalize_openapi_request(resp)
+            openapi_request = RequestsOpenAPIRequest(resp.request)
             openapi_response = RequestsOpenAPIResponse(resp)
 
             # Validate + unmarshal the response against the request
@@ -173,6 +195,7 @@ class MsrOpenApiValidator:
             self._progress_callback(result)
         return result
 
+
     def validate_msr(self):
         """
         Validate the MSR with test queries
@@ -182,8 +205,8 @@ class MsrOpenApiValidator:
 
         search_filter = self.get_new_search_filter()
 
-        search_service_url = self.url + "/v2/searchService"
-        retrieve_results_url = self.url + "/v2/retrieveResult/"
+        search_service_url = self.url + "v2/searchService"
+        retrieve_results_url = self.url + "v2/retrieveResult/"
 
         search_filter.envelope, signature = self._pki_services.sign_envelope_object(search_filter.envelope)
         search_filter.envelope_signature = signature
@@ -218,7 +241,6 @@ class MsrOpenApiValidator:
 
         print(f"RESULT: {result}")
         self._record(test_results, result)
-
 
         if result.test_success:
             search_result = SecomSearchResult(result.full_response)
@@ -441,13 +463,13 @@ class MsrOpenApiValidator:
                     # Second attempt to retrieve the result
                     sleep(3)
                     test_name = f"Wait 6 seconds then retrieve results for transaction id: {transaction_id}"
-                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
+                    retrieve_result_6s = self.run_retrieve_test(retrieve_results_url + transaction_id, str(transaction_id), test_name, 200)
                     self._record(test_results, retrieve_result_6s)
 
                     # Final attempt to retrieve the result
                     sleep(4)
                     test_name = f"Wait 10 seconds then retrieve results for transaction id: {transaction_id}"
-                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url  + transaction_id, str(transaction_id), test_name, 200)
+                    retrieve_result_10s = self.run_retrieve_test(retrieve_results_url + transaction_id, str(transaction_id), test_name, 200)
                     self._record(test_results, retrieve_result_10s)
 
                 else:
@@ -495,21 +517,6 @@ class MsrOpenApiValidator:
 
         return test_results
 
-    @staticmethod
-    def normalize_openapi_request(resp):
-        normalized_url = resp.request.url.replace(
-            "/api/secom/v2/",
-            "/v2/"
-        )
-
-        prepared = Request(
-            method=resp.request.method,
-            url=normalized_url,
-            headers=resp.request.headers,
-            data=resp.request.body,
-        ).prepare()
-
-        return RequestsOpenAPIRequest(prepared)
 
     @staticmethod
     def get_new_search_filter():

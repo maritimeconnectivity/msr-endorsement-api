@@ -66,7 +66,7 @@ class ValidatorWorker(QThread):
         try:
             validator = MsrOpenApiValidator(
                 self._test_data,
-                api_path=SCHEMA_PATH,
+                api_path=SCHEMA_PATH if not self._test_data.open_api_spec else self._test_data.open_api_spec,
                 progress_callback=self.result_ready.emit,
             )
             results: TestResults = validator.validate_msr()
@@ -122,21 +122,23 @@ class MainWindow(QMainWindow):
         form = QFormLayout()
         self.url_edit = QLineEdit()
         self.url_edit.setPlaceholderText("https://example.com")
+        self.instance_id_edit = QLineEdit()
+        self.instance_id_edit.setPlaceholderText("urn:mrn:mcp:service:...:instance:...")
         self.public_picker = FilePicker("Select public certificate",
                                         "Certificates (*.pem *.crt *.cer);;All files (*)")
         self.private_picker = FilePicker("Select private key",
                                          "Keys (*.pem *.key);;All files (*)")
         self.root_picker = FilePicker("Select root CA certificate",
                                       "Certificates (*.pem *.crt *.cer);;All files (*)")
-        self.instance_id_edit = QLineEdit()
-        self.instance_id_edit.setPlaceholderText(
-            "urn:mrn:mcp:service:...:instance:...")
+        self.open_api_spec_picker = FilePicker("Select the OpenAPI Specification",
+                                               "Leave empty for the default MSRv2.json")
 
         form.addRow("MSR URL:", self.url_edit)
-        form.addRow("Public certificate:", self.public_picker)
-        form.addRow("Private key:", self.private_picker)
-        form.addRow("Root CA certificate:", self.root_picker)
-        form.addRow("Test instance ID:", self.instance_id_edit)
+        form.addRow("Test Instance ID:", self.instance_id_edit)
+        form.addRow("Public Certificate:", self.public_picker)
+        form.addRow("Private Key:", self.private_picker)
+        form.addRow("Root CA Certificate:", self.root_picker)
+        form.addRow("OpenAPI Specification:", self.open_api_spec_picker)
         root_layout.addLayout(form)
 
         # --- Run button + status -------------------------------------------
@@ -161,10 +163,11 @@ class MainWindow(QMainWindow):
     # -- actions ------------------------------------------------------------
     def _start(self) -> None:
         url = self.url_edit.text().strip()
+        instance_id = self.instance_id_edit.text().strip()
         public_path = self.public_picker.path()
         private_path = self.private_picker.path()
         root_path = self.root_picker.path()
-        instance_id = self.instance_id_edit.text().strip()
+        open_api_spec_path = self.open_api_spec_picker.path()
 
         missing = []
         if not url:
@@ -185,10 +188,11 @@ class MainWindow(QMainWindow):
         try:
             test_data = TestData(
                 test_url=url,
+                test_service_instance_id=instance_id,
                 certificate=_file_to_base64(public_path),
                 private_key=_file_to_base64(private_path),
                 root_certificate=_file_to_base64(root_path),
-                test_service_instance_id=instance_id,
+                open_api_spec=open_api_spec_path
             )
         except OSError as exc:
             QMessageBox.critical(self, "Could not read file", str(exc))
